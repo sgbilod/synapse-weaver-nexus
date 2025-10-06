@@ -1,8 +1,8 @@
 // packages/nexus-core/src/OrchestrationEngine.ts
-import { v4 as uuidv4 } from 'uuid';
-import { IOrchestrationEngine } from './nexus-core';
-import { TaskVector, ExecutionPlan, ExecutionReceipt } from './cognitive.types';
-import { AGENT_PROFILES } from './mock.agents';
+import { v4 as uuidv4 } from "uuid";
+import { IOrchestrationEngine } from "./nexus-core";
+import { TaskVector, ExecutionPlan, ExecutionReceipt } from "./cognitive.types";
+import { AGENT_PROFILES } from "./mock.agents";
 
 export class OrchestrationEngine implements IOrchestrationEngine {
   public async receiveTask(vector: TaskVector): Promise<ExecutionPlan> {
@@ -21,13 +21,13 @@ export class OrchestrationEngine implements IOrchestrationEngine {
     let selectedAgentProfile = AGENT_PROFILES.DRONE_GENERIC_TASK;
 
     switch (vector.parsedIntent.primaryAction) {
-      case 'TEST':
+      case "TEST":
         selectedAgentProfile = AGENT_PROFILES.SENTINEL_JEST_TS;
         break;
-      case 'REFACTOR':
+      case "REFACTOR":
         selectedAgentProfile = AGENT_PROFILES.ALCHEMIST_TS_REFACTOR;
         break;
-      case 'RESEARCH':
+      case "RESEARCH":
         selectedAgentProfile = AGENT_PROFILES.SCOUT_NPM_VULNERABILITY;
         break;
       default:
@@ -56,7 +56,7 @@ export class OrchestrationEngine implements IOrchestrationEngine {
       `[NEXUS-CORE] Dispatching swarm for plan ${plan.planId}. This feature is not yet implemented.`
     );
     // In the future, this will involve Docker/Kubernetes orchestration.
-    return Promise.reject(new Error('Swarm dispatch not implemented.'));
+    return Promise.reject(new Error("Swarm dispatch not implemented."));
   }
 
   public processReceipt(receipt: ExecutionReceipt): void {
