@@ -10,7 +10,13 @@ export interface TaskVector {
   sourceCode: string; // The highlighted code block or file content
   naturalLanguageIntent: string; // The developer's raw command
   parsedIntent: {
-    primaryAction: 'CREATE' | 'TEST' | 'REFACTOR' | 'DEBUG' | 'DOCUMENT' | 'RESEARCH';
+    primaryAction:
+      | "CREATE"
+      | "TEST"
+      | "REFACTOR"
+      | "DEBUG"
+      | "DOCUMENT"
+      | "RESEARCH";
     subject: string; // e.g., "unit tests", "performance", "this function"
     context: string[]; // Keywords derived from surrounding code
   };
@@ -31,7 +37,7 @@ export interface TaskVector {
  */
 export interface AgentProfile {
   id: string;
-  archetype: 'Sentinel' | 'Scout' | 'Alchemist' | 'Drone';
+  archetype: "Sentinel" | "Scout" | "Alchemist" | "Drone";
   specializations: string[]; // e.g., ["Jest", "React", "SQL Injection"]
   costPerToken: number;
   costPerSecond: number;
@@ -45,7 +51,7 @@ export interface AgentCredibility {
   score: number; // A value between 0.0 and 1.0
   history: Array<{
     taskId: string;
-    outcome: 'SUCCESS' | 'FAILURE' | 'REJECTED';
+    outcome: "SUCCESS" | "FAILURE" | "REJECTED";
     credibilityChange: number;
     timestamp: number;
   }>;
@@ -73,7 +79,7 @@ export interface ExecutionReceipt {
   receiptId: string;
   planId: string;
   taskId: string;
-  outcome: 'COMPLETED' | 'FAILED' | 'CANCELLED';
+  outcome: "COMPLETED" | "FAILED" | "CANCELLED";
   finalCost: number;
   finalTimeSeconds: number;
   results: Array<{

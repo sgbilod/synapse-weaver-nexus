@@ -1,5 +1,5 @@
 // packages/nexus-core/src/nexus-core.ts
-import { TaskVector, ExecutionPlan, ExecutionReceipt } from './cognitive.types';
+import { TaskVector, ExecutionPlan, ExecutionReceipt } from "./cognitive.types";
 
 /**
  * The central orchestrator for the Synapse Weaver system.

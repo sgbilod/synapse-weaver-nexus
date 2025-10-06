@@ -5,10 +5,10 @@ export type {
   AgentCredibility,
   ExecutionPlan,
   ExecutionReceipt,
-} from './cognitive.types';
+} from "./cognitive.types";
 
 // Export orchestration engine interface
-export type { IOrchestrationEngine } from './nexus-core';
+export type { IOrchestrationEngine } from "./nexus-core";
 
 // Legacy placeholder exports (to be refactored)
 export interface EconomicDirective {
