@@ -1,4 +1,5 @@
 # Project Synapse Weaver: Architectural Analysis & Review
+
 **Genesis v1.0 - Final Engineering Assessment**
 
 **Document Status:** APPROVED FOR AWAKENING PHASE  
@@ -21,6 +22,7 @@ The system aims to bridge the gap between natural language human directives and 
 As of this analysis, the Genesis v1.0 system has achieved **full logical loop closure** from user intent to execution plan generation:
 
 **✅ Operational Capabilities:**
+
 - **Synapse Bridge (VS Code Extension):** Captures developer intent via hotkey (`Ctrl+Shift+W`), parses natural language commands, and constructs structured `TaskVector` objects containing code context, parsed intent, and execution constraints.
 - **Intent Parser:** Rule-based keyword matching system that classifies user directives into 6 action types: `CREATE`, `TEST`, `REFACTOR`, `DEBUG`, `DOCUMENT`, `RESEARCH`.
 - **Nexus Core (Orchestration Engine):** Receives `TaskVector` objects, applies economic decision logic via rule-based agent selection, and generates `ExecutionPlan` objects specifying which specialized agents should handle the task.
@@ -28,6 +30,7 @@ As of this analysis, the Genesis v1.0 system has achieved **full logical loop cl
 - **Mock Agent Profiles:** Four agent archetypes (Sentinel, Alchemist, Scout, Drone) with defined specializations and cost structures.
 
 **⚠️ Limitations:**
+
 - **No Real Agent Execution:** The `dispatchSwarm()` method is stubbed. ExecutionPlan objects are generated but never result in actual code generation, testing, or refactoring.
 - **Rule-Based Intelligence:** Both intent parsing and agent selection use hardcoded `if/else` logic, not ML models. Zero learning capability.
 - **No Credibility System:** Agent trust/reputation tracking (`AgentCredibility`) is defined but not implemented.
@@ -60,13 +63,13 @@ The following novel concepts have been successfully implemented or architectural
 
 The project follows a modular monorepo architecture with 5 distinct packages:
 
-| Package | Responsibility | Current Status | Lines of Code | Test Coverage |
-|---------|---------------|----------------|---------------|---------------|
-| **`@synapse/nexus-core`** | Orchestration engine, cognitive types, agent profiles, execution planning logic | **ACTIVE** - Core functionality complete for v1 | ~350 (4 files) | 7 tests (architecture + engine) |
-| **`@synapse/synapse-bridge`** | VS Code extension, intent parser, TaskVector construction, UI integration | **ACTIVE** - Full integration complete | ~400 (5 files) | 31 tests (parser + integration) |
-| **`@synapse/agent-foundry`** | Agent development toolkit, agent lifecycle management, sandboxing | **SCAFFOLDED** - Placeholder only | ~10 (1 file) | 0 tests |
-| **`@synapse/ui-desktop`** | Electron-based desktop application for agent monitoring and control | **SCAFFOLDED** - Placeholder only | ~20 (2 files) | 1 E2E test (placeholder) |
-| **`@synapse/docs`** | Centralized documentation, architecture diagrams, API references | **SCAFFOLDED** - Basic README | ~50 (1 file) | 0 tests |
+| Package                       | Responsibility                                                                  | Current Status                                  | Lines of Code  | Test Coverage                   |
+| ----------------------------- | ------------------------------------------------------------------------------- | ----------------------------------------------- | -------------- | ------------------------------- |
+| **`@synapse/nexus-core`**     | Orchestration engine, cognitive types, agent profiles, execution planning logic | **ACTIVE** - Core functionality complete for v1 | ~350 (4 files) | 7 tests (architecture + engine) |
+| **`@synapse/synapse-bridge`** | VS Code extension, intent parser, TaskVector construction, UI integration       | **ACTIVE** - Full integration complete          | ~400 (5 files) | 31 tests (parser + integration) |
+| **`@synapse/agent-foundry`**  | Agent development toolkit, agent lifecycle management, sandboxing               | **SCAFFOLDED** - Placeholder only               | ~10 (1 file)   | 0 tests                         |
+| **`@synapse/ui-desktop`**     | Electron-based desktop application for agent monitoring and control             | **SCAFFOLDED** - Placeholder only               | ~20 (2 files)  | 1 E2E test (placeholder)        |
+| **`@synapse/docs`**           | Centralized documentation, architecture diagrams, API references                | **SCAFFOLDED** - Basic README                   | ~50 (1 file)   | 0 tests                         |
 
 **Architectural Observations:**
 
@@ -94,25 +97,25 @@ sequenceDiagram
     VSCode->>Bridge: Trigger synapse-weaver.activate command
     Bridge->>Developer: Show input box: "What is your directive?"
     Developer->>Bridge: Enter: "refactor this function"
-    
+
     Bridge->>Parser: parseIntent("refactor this function")
     Parser->>Parser: Keyword matching: "refactor" → REFACTOR
     Parser-->>Bridge: Return ParsedIntent { primaryAction: "REFACTOR", subject: "...", context: [] }
-    
+
     Bridge->>Bridge: Construct TaskVector
     Note over Bridge: TaskVector includes:<br/>- Selected code<br/>- Natural language intent<br/>- Parsed intent<br/>- Project context<br/>- Constraints
-    
+
     Bridge->>Engine: nexusEngine.receiveTask(taskVector)
     Engine->>Engine: createExecutionPlan(taskVector)
     Engine->>Agents: Select agent based on primaryAction
     Agents-->>Engine: Return ALCHEMIST_TS_REFACTOR profile
-    
+
     Engine->>Engine: Generate ExecutionPlan with planId, swarm, estimates
     Engine-->>Bridge: Return ExecutionPlan
-    
+
     Bridge->>Developer: Show notification:<br/>"Plan 'abc-123' created. Deploying 1 Alchemist agent."
     Bridge->>VSCode: Log ExecutionPlan to Debug Console
-    
+
     Note over Engine,Agents: ⚠️ dispatchSwarm() NOT CALLED<br/>No actual agent execution occurs
 ```
 
@@ -135,23 +138,33 @@ The five interfaces defined in `cognitive.types.ts` are the **API contract** tha
 #### **Interface Analysis:**
 
 **1. `TaskVector`** - **The Universal Input**
+
 ```typescript
 interface TaskVector {
-  id: string;                      // Unique task identifier
-  timestamp: number;               // For temporal analysis
-  sourceCode: string;              // The raw material to work with
-  naturalLanguageIntent: string;   // Human thought, unprocessed
-  parsedIntent: {                  // Machine interpretation
-    primaryAction: "CREATE" | "TEST" | "REFACTOR" | "DEBUG" | "DOCUMENT" | "RESEARCH";
+  id: string; // Unique task identifier
+  timestamp: number; // For temporal analysis
+  sourceCode: string; // The raw material to work with
+  naturalLanguageIntent: string; // Human thought, unprocessed
+  parsedIntent: {
+    // Machine interpretation
+    primaryAction:
+      | "CREATE"
+      | "TEST"
+      | "REFACTOR"
+      | "DEBUG"
+      | "DOCUMENT"
+      | "RESEARCH";
     subject: string;
     context: string[];
   };
-  projectContext: {                // Environmental awareness
+  projectContext: {
+    // Environmental awareness
     projectId: string;
     filePath: string;
     projectStyleGuide: Record<string, any>;
   };
-  constraints: {                   // Economic boundaries
+  constraints: {
+    // Economic boundaries
     maxBudget: number;
     maxTimeSeconds: number;
     requiredCredibility: number;
@@ -160,11 +173,13 @@ interface TaskVector {
 ```
 
 **Strengths:**
+
 - Captures multi-dimensional context beyond just "what to do" (includes "where", "when", "how much", "with what trust level")
 - Extensible: `projectStyleGuide` placeholder ready for Personal En-gram
 - Economic awareness baked into the core data model
 
 **Weaknesses:**
+
 - `parsedIntent.subject` is currently just a copy of the full intent string (no real extraction)
 - `parsedIntent.context` is always empty (no semantic analysis of surrounding code)
 - `constraints` values are hardcoded in the bridge (not configurable by user or learned from history)
@@ -172,6 +187,7 @@ interface TaskVector {
 ---
 
 **2. `AgentProfile`** - **The Specialist Definition**
+
 ```typescript
 interface AgentProfile {
   id: string;
@@ -183,11 +199,13 @@ interface AgentProfile {
 ```
 
 **Strengths:**
+
 - Clean separation between agent identity and agent capabilities
 - Economic model embedded (dual cost structure: tokens + time)
 - Archetype concept allows for agent classification and discovery
 
 **Weaknesses:**
+
 - No version field (how to handle agent upgrades?)
 - No capability/requirement matching system (e.g., "requires Docker", "supports GPU acceleration")
 - Specializations are freeform strings (should be enum or taxonomy)
@@ -195,6 +213,7 @@ interface AgentProfile {
 ---
 
 **3. `AgentCredibility`** - **The Trust Ledger**
+
 ```typescript
 interface AgentCredibility {
   agentId: string;
@@ -209,11 +228,13 @@ interface AgentCredibility {
 ```
 
 **Strengths:**
+
 - History-based reputation system (not just a single score)
 - Temporal tracking allows for credibility decay analysis
 - Simple 0-1 score is easy to reason about
 
 **Weaknesses:**
+
 - Not implemented anywhere (no persistence, no updates)
 - No decay algorithm defined (does old good behavior count forever?)
 - No threshold policies (what score unlocks what capabilities?)
@@ -221,6 +242,7 @@ interface AgentCredibility {
 ---
 
 **4. `ExecutionPlan`** - **The Orchestration Blueprint**
+
 ```typescript
 interface ExecutionPlan {
   planId: string;
@@ -235,11 +257,13 @@ interface ExecutionPlan {
 ```
 
 **Strengths:**
+
 - Swarm-first design (array of agents, not single agent)
 - Pre-execution cost estimation enables approval workflows
 - Links back to originating task via `taskId`
 
 **Weaknesses:**
+
 - `taskChunk` is just the full `naturalLanguageIntent` (no real task decomposition)
 - No dependency graph (if agent A must complete before agent B)
 - No rollback strategy field
@@ -247,6 +271,7 @@ interface ExecutionPlan {
 ---
 
 **5. `ExecutionReceipt`** - **The Post-Execution Audit**
+
 ```typescript
 interface ExecutionReceipt {
   receiptId: string;
@@ -269,11 +294,13 @@ interface ExecutionReceipt {
 ```
 
 **Strengths:**
+
 - Comprehensive post-execution data (actual vs estimated costs)
 - Per-agent result tracking (enables individual agent credibility updates)
 - Failure analysis structure for debugging and swarm healing
 
 **Weaknesses:**
+
 - Never generated (dispatchSwarm is stubbed)
 - `output` is generic string (should be typed based on task type: code diff for REFACTOR, test results for TEST)
 - No artifact references (where are generated files stored?)
@@ -291,6 +318,7 @@ These interfaces are **architecturally sound** and demonstrate forward-thinking 
 ### Quantitative Analysis
 
 **Test Metrics:**
+
 - **Total Test Suites:** 5
 - **Total Tests:** 39 passing
 - **Test Distribution:**
@@ -353,6 +381,7 @@ These interfaces are **architecturally sound** and demonstrate forward-thinking 
 **Code Style & Modern Practices:**
 
 ✅ **Strengths:**
+
 - **TypeScript Strict Mode:** All code uses explicit type annotations, interfaces are well-defined.
 - **Async/Await:** Proper use of promises throughout (no callback hell).
 - **JSDoc Comments:** Functions and interfaces have clear documentation.
@@ -361,6 +390,7 @@ These interfaces are **architecturally sound** and demonstrate forward-thinking 
 - **Separation of Concerns:** Each file has a single responsibility (parser ≠ engine ≠ bridge).
 
 ⚠️ **Areas for Improvement:**
+
 - **Magic Numbers:** Hardcoded values like `maxBudget: 10.0`, `maxTimeSeconds: 300`, `estimatedTimeSeconds: 30` are scattered throughout. Should be constants or config.
 - **Inline Type Duplication:** `TaskVector` interface is duplicated in `extension.ts` (workaround for import issues, but technical debt).
 - **Insufficient Logging:** While console.log is used, there's no structured logging framework (no log levels, no timestamps, no correlation IDs).
@@ -405,6 +435,7 @@ export const ESTIMATION_MULTIPLIERS = {
 ```
 
 **Benefits:**
+
 - Single source of truth for configuration
 - Easier to test (can mock config values)
 - Prepares for user-configurable settings
@@ -419,7 +450,7 @@ export const ESTIMATION_MULTIPLIERS = {
 return {
   primaryAction,
   subject: naturalLanguageIntent, // Just copies the full string
-  context: [],                    // Always empty
+  context: [], // Always empty
 };
 ```
 
@@ -433,22 +464,28 @@ export function parseIntent(naturalLanguageIntent: string): ParsedIntent {
   // Existing action classification logic...
 
   // Extract subject (noun phrases after verbs)
-  const subjectMatch = naturalLanguageIntent.match(/(?:refactor|test|debug|document)\s+(.+)/i);
+  const subjectMatch = naturalLanguageIntent.match(
+    /(?:refactor|test|debug|document)\s+(.+)/i
+  );
   const subject = subjectMatch ? subjectMatch[1].trim() : naturalLanguageIntent;
 
   // Extract context keywords (technical terms)
-  const technicalTerms = /\b(function|class|component|module|API|database|test|authentication)\b/gi;
-  const context = [...new Set(naturalLanguageIntent.match(technicalTerms) || [])];
+  const technicalTerms =
+    /\b(function|class|component|module|API|database|test|authentication)\b/gi;
+  const context = [
+    ...new Set(naturalLanguageIntent.match(technicalTerms) || []),
+  ];
 
   return {
     primaryAction,
     subject,
-    context: context.map(term => term.toLowerCase()),
+    context: context.map((term) => term.toLowerCase()),
   };
 }
 ```
 
 **Benefits:**
+
 - More useful data for agent selection (e.g., prefer "authentication specialist" agent if context includes "authentication")
 - Prepares for ML-based intent classification (structured features)
 - Better debugging (subject shows what the user actually cares about)
@@ -477,6 +514,7 @@ The current `intentParser.ts` uses a simple `if/else` keyword matching approach.
 **Risk:** As task complexity grows, the parser will become a critical chokepoint. Users will be frustrated by rigid command syntax.
 
 **Mitigation Path:**
+
 - **Phase 1 (Short-term):** Expand keyword dictionary, add synonym support
 - **Phase 2 (Medium-term):** Integrate lightweight ML classifier (e.g., fine-tuned BERT for intent classification)
 - **Phase 3 (Long-term):** Full LLM integration (GPT-4/Claude for zero-shot intent understanding)
@@ -500,11 +538,13 @@ public async dispatchSwarm(plan: ExecutionPlan): Promise<ExecutionReceipt> {
 This means **the entire system is read-only**. It can think but cannot act. This is the single largest gap between current state and usable product.
 
 **Risks:**
+
 - **Execution Environment Complexity:** Running arbitrary AI-generated code is a security nightmare. Requires sandboxing (Docker, WebAssembly, VMs).
 - **Agent Implementation Diversity:** Different agent types (Sentinel = run Jest, Alchemist = run refactoring tools, Scout = query NPM registry) require completely different execution logic.
 - **Result Validation:** Who decides if the agent's output is acceptable? Human approval? Automated testing? Credibility-based auto-acceptance?
 
 **Mitigation Path:**
+
 - **Phase 1:** Implement simplest agent first (Scout = read-only NPM/GitHub queries, no code modification)
 - **Phase 2:** Implement Sentinel with sandboxed Jest execution in Docker container
 - **Phase 3:** Implement Alchemist with LLM-powered refactoring in isolated environment
@@ -527,11 +567,13 @@ The `AgentCredibility` interface exists but is never used. Without this:
 The Core Directives document explicitly states: "Trust is not granted; it is earned." But currently, there's no way to earn trust.
 
 **Risks:**
+
 - **Delayed ROI:** If every action needs approval, users won't save time
 - **Reputation Attack Surface:** If implemented naively, a malicious actor could game the credibility system
 - **Cold Start Problem:** New agents have zero credibility—how do they get their first approval?
 
 **Mitigation Path:**
+
 - **Phase 1:** Implement local credibility storage (SQLite or JSON file)
 - **Phase 2:** Define credibility scoring algorithm (success rate + acceptance rate + failure cost)
 - **Phase 3:** Implement threshold-based autonomy (0.9+ credibility = auto-approve READ operations, 0.95+ = WRITE operations)
@@ -547,6 +589,7 @@ The Core Directives document explicitly states: "Trust is not granted; it is ear
 The project vision assumes heavy LLM usage (intent parsing, code generation, refactoring suggestions). LLM APIs are expensive and rate-limited.
 
 **Financial Impact Analysis:**
+
 - **Assumption:** 100 agent executions/day per user
 - **GPT-4o Cost:** ~$0.01 per 1K tokens input, ~$0.03 per 1K tokens output
 - **Estimated Token Usage:** ~2K tokens input (code + prompt) + ~1K tokens output (generated code/analysis) per execution
@@ -555,6 +598,7 @@ The project vision assumes heavy LLM usage (intent parsing, code generation, ref
 **Verdict:** For a personal tool, this is prohibitively expensive if every operation hits an LLM. Economic efficiency (Directive Gamma) DEMANDS local/cached/cheaper solutions for routine tasks.
 
 **Mitigation Strategies:**
+
 1. **Tiered Intelligence:** Simple tasks (keyword parsing, known refactoring patterns) use local models or rules. Complex tasks (novel code generation) use GPT-4.
 2. **Aggressive Caching:** Store LLM responses with embeddings-based retrieval (similar tasks return cached responses).
 3. **Fine-Tuned Local Models:** Train small, specialized models for high-frequency operations (intent classification, code style enforcement).
@@ -568,6 +612,7 @@ The project vision assumes heavy LLM usage (intent parsing, code generation, ref
 The "Personal En-gram" (learning developer coding style and preferences) is a core innovation but represents significant R&D effort.
 
 **Technical Challenges:**
+
 - **Data Collection:** Requires passive monitoring of user's codebase, commits, file access patterns, code reviews
 - **Privacy Concerns:** Analyzing user's entire codebase is sensitive (what if it contains proprietary/confidential code?)
 - **Model Training:** Requires ML pipeline (data preprocessing, feature extraction, model training, validation)
@@ -576,6 +621,7 @@ The "Personal En-gram" (learning developer coding style and preferences) is a co
 **Opportunity Cost:** Building a robust Personal En-gram could take 3-6 months of dedicated development. During this time, no new agent capabilities are being added.
 
 **Mitigation Strategies:**
+
 1. **Start Minimal:** v2 En-gram = simple key-value preferences (e.g., "prefer const over let", "always add JSDoc comments")
 2. **Progressive Enhancement:** Add one dimension at a time (naming first, then architecture, then testing patterns)
 3. **User-Driven Training:** Let users explicitly teach preferences via examples ("approve this style", "reject this style")
@@ -589,6 +635,7 @@ The "Personal En-gram" (learning developer coding style and preferences) is a co
 This is a personal development tool with sophisticated agent orchestration. Is the complexity justified for a single-user deployment?
 
 **Critical Questions:**
+
 - **Is rule-based agent selection "good enough"?** For personal use, maybe users don't need ML-optimized agent selection—they just want "the tool that works."
 - **Is in-process architecture limiting?** If the system is meant to be personal forever, in-process is fine. But if it scales to team/enterprise, will need to be rewritten for distributed architecture.
 - **Is the vision too ambitious?** Six major innovations (Genesis Engine, Credibility, En-gram, Swarm-Healing, Cognitive Onboarding, Containerization) are listed in the IP ledger—are all necessary for MVP?
@@ -608,41 +655,47 @@ Based on the bottleneck analysis and strategic risks, the following roadmap prio
 
 **Objective:** Enable real agent execution with sandboxed, secure environments.
 
-**User Story:** *"As a developer, I want agents to actually run tests (not just generate plans), so I can see real value from the system."*
+**User Story:** _"As a developer, I want agents to actually run tests (not just generate plans), so I can see real value from the system."_
 
 #### **Tasks:**
 
 **Task 1.1: Design Agent Execution Specification**
+
 - Define standard input/output format for agents (JSON schema)
 - Specify resource limits (CPU, memory, time, network access)
 - Document security requirements (filesystem isolation, no credential access)
 - **Deliverable:** `docs/AGENT_EXECUTION_SPEC.md`
 
 **Task 1.2: Implement Docker-Based Sandbox**
+
 - Create base Docker image for agent execution (Node.js, TypeScript, Jest, common tools)
 - Build agent launcher script that mounts code as volume, runs agent, captures output
 - Implement timeout and resource limit enforcement
 - **Deliverable:** `packages/agent-foundry/src/sandbox/DockerExecutor.ts`
 
 **Task 1.3: Implement Sentinel Agent (Test Runner)**
+
 - Create actual Sentinel agent code (not just mock profile)
 - Agent reads TaskVector, analyzes code, generates/runs Jest tests
 - Agent outputs ExecutionReceipt with test results
 - **Deliverable:** `packages/agent-foundry/src/agents/SentinelAgent.ts`
 
 **Task 1.4: Integrate dispatchSwarm with Docker Executor**
+
 - Implement `OrchestrationEngine.dispatchSwarm()` method
 - Launch Docker container, stream logs back to Nexus Core
 - Parse agent output into ExecutionReceipt
 - **Deliverable:** Updated `OrchestrationEngine.ts` with working dispatch
 
 **Task 1.5: Result Streaming to User**
+
 - Add result display panel in VS Code extension
 - Stream real-time logs from agent execution
 - Display final ExecutionReceipt with success/failure status
 - **Deliverable:** `packages/synapse-bridge/src/ResultsPanel.ts`
 
 **Acceptance Criteria:**
+
 - Developer selects test-worthy code, types "test this function"
 - Sentinel agent launches in Docker, generates tests, runs them
 - Results appear in VS Code panel within 60 seconds
@@ -656,41 +709,47 @@ Based on the bottleneck analysis and strategic risks, the following roadmap prio
 
 **Objective:** Implement trust tracking to enable graduated autonomy.
 
-**User Story:** *"As a developer, I want the system to remember which agents produce good results, so I don't have to review every single action."*
+**User Story:** _"As a developer, I want the system to remember which agents produce good results, so I don't have to review every single action."_
 
 #### **Tasks:**
 
 **Task 2.1: Design Credibility Scoring Algorithm**
+
 - Define credibility calculation formula (success rate + user acceptance rate + time-to-completion factor)
 - Specify credibility decay function (older successes count less)
 - Document threshold policies (what credibility unlocks what permissions)
 - **Deliverable:** `docs/CREDIBILITY_ALGORITHM.md`
 
 **Task 2.2: Implement Credibility Storage**
+
 - Create SQLite database schema for agent credibility history
 - Build CredibilityStore class with CRUD operations
 - Add migration support for schema upgrades
 - **Deliverable:** `packages/nexus-core/src/credibility/CredibilityStore.ts`
 
 **Task 2.3: Update processReceipt to Calculate Credibility**
+
 - Implement `OrchestrationEngine.processReceipt()` method
 - Parse ExecutionReceipt outcome, update agent credibility score
 - Log credibility changes with justification
 - **Deliverable:** Updated `OrchestrationEngine.ts` with credibility updates
 
 **Task 2.4: Implement Auto-Approval Logic**
+
 - Check agent credibility before showing approval prompt
 - If credibility > 0.90 AND task is READ-only, auto-approve
 - If credibility > 0.95 AND task is WRITE AND <10 lines changed, auto-approve
 - **Deliverable:** `packages/synapse-bridge/src/ApprovalManager.ts`
 
 **Task 2.5: Add Credibility Dashboard**
+
 - Create VS Code webview panel showing all agents and their credibility scores
 - Display recent task history with success/failure indicators
 - Allow manual credibility reset (for testing or after agent upgrade)
 - **Deliverable:** `packages/synapse-bridge/src/CredibilityDashboard.ts`
 
 **Acceptance Criteria:**
+
 - After 10 successful test runs, Sentinel agent reaches 0.90 credibility
 - Next test run auto-approves without user prompt
 - Credibility drops to 0.70 after one failed test
@@ -704,41 +763,47 @@ Based on the bottleneck analysis and strategic risks, the following roadmap prio
 
 **Objective:** Replace rule-based intent parser with ML classifier for better accuracy and extensibility.
 
-**User Story:** *"As a developer, I want to use natural language without remembering keywords, so the system feels intelligent."*
+**User Story:** _"As a developer, I want to use natural language without remembering keywords, so the system feels intelligent."_
 
 #### **Tasks:**
 
 **Task 3.1: Collect Training Data**
+
 - Curate dataset of 500+ developer intent examples (from real VS Code Command Palette usage, GitHub issues, Stack Overflow questions)
 - Label each example with primaryAction, subject, context
 - Split into train/validation/test sets (70/15/15)
 - **Deliverable:** `data/intent_training_data.jsonl`
 
 **Task 3.2: Train Intent Classifier Model**
+
 - Fine-tune DistilBERT or similar small model on intent classification task
 - Achieve >95% accuracy on test set
 - Export model to ONNX format for fast inference
 - **Deliverable:** `models/intent_classifier.onnx`
 
 **Task 3.3: Implement ML-Based Intent Parser**
+
 - Create `MLIntentParser` class that loads ONNX model
 - Replace keyword matching with model inference
 - Add fallback to rule-based parser if model fails
 - **Deliverable:** `packages/synapse-bridge/src/MLIntentParser.ts`
 
 **Task 3.4: A/B Test ML vs Rule-Based Parser**
+
 - Add telemetry to track parsing accuracy (user approves/rejects parsed intent)
 - Run both parsers in parallel, compare accuracy over 100 real-world tasks
 - Document performance metrics (latency, accuracy, failure modes)
 - **Deliverable:** `docs/INTENT_PARSER_AB_TEST_RESULTS.md`
 
 **Task 3.5: Add Context Extraction with NER**
+
 - Implement Named Entity Recognition to extract technical terms from intent
 - Populate `parsedIntent.context` with extracted entities (e.g., "React", "authentication", "database")
 - Use context for smarter agent selection (prefer specialized agents)
 - **Deliverable:** Enhanced `MLIntentParser` with NER
 
 **Acceptance Criteria:**
+
 - Developer types "make this code run faster" → Parser classifies as REFACTOR (not CREATE)
 - Developer types "is there a security issue here?" → Parser classifies as RESEARCH + extracts "security" context
 - ML parser achieves >90% user approval rate (vs ~70% for rule-based)
@@ -752,40 +817,46 @@ Based on the bottleneck analysis and strategic risks, the following roadmap prio
 
 **Objective:** Learn basic developer coding style preferences to personalize agent outputs.
 
-**User Story:** *"As a developer, I want agents to generate code in MY style, not generic style, so I don't have to rewrite it."*
+**User Story:** _"As a developer, I want agents to generate code in MY style, not generic style, so I don't have to rewrite it."_
 
 #### **Tasks:**
 
 **Task 4.1: Define Style Preference Schema**
+
 - Identify 10-15 common style dimensions (const vs let, semicolons, single quotes, arrow functions, etc.)
 - Create JSON schema for storing preferences
 - Document how agents should apply preferences
 - **Deliverable:** `packages/nexus-core/src/engram/StylePreferenceSchema.ts`
 
 **Task 4.2: Implement Codebase Scanner**
+
 - Build static analysis tool that scans user's project
 - Extract style patterns (e.g., "95% of functions use arrow syntax")
 - Generate initial style profile
 - **Deliverable:** `packages/nexus-core/src/engram/CodebaseScanner.ts`
 
 **Task 4.3: Build En-gram Storage**
+
 - Create local file storage for user's style profile (`~/.synapse-weaver/engram.json`)
 - Implement versioning (profile can be updated over time)
 - Add manual override UI (user can edit preferences)
 - **Deliverable:** `packages/nexus-core/src/engram/EngramStore.ts`
 
 **Task 4.4: Integrate En-gram into TaskVector**
+
 - Populate `projectContext.projectStyleGuide` with En-gram data
 - Pass style preferences to agents via TaskVector
 - **Deliverable:** Updated `extension.ts` with En-gram integration
 
 **Task 4.5: Update Agents to Apply Style**
+
 - Modify Sentinel and Alchemist agents to read style preferences
 - Use preferences in code generation (e.g., generated tests use user's preferred syntax)
 - Validate that generated code matches style (post-generation linting)
 - **Deliverable:** Updated agent implementations with style awareness
 
 **Acceptance Criteria:**
+
 - System scans user's codebase on first run, identifies "prefers const over let"
 - When Sentinel generates tests, all variable declarations use const
 - User manually changes preference to "prefer let" → next test generation uses let
@@ -799,41 +870,47 @@ Based on the bottleneck analysis and strategic risks, the following roadmap prio
 
 **Objective:** Enable complex tasks that require multiple agents working together.
 
-**User Story:** *"As a developer, I want to say 'modernize this legacy code' and have a team of agents handle different aspects (tests, refactoring, documentation)."*
+**User Story:** _"As a developer, I want to say 'modernize this legacy code' and have a team of agents handle different aspects (tests, refactoring, documentation)."_
 
 #### **Tasks:**
 
 **Task 5.1: Design Task Decomposition Algorithm**
+
 - Define heuristics for splitting complex intents into sub-tasks
 - Create dependency graph between sub-tasks (e.g., "refactor" must complete before "test")
 - Specify how results are merged (e.g., combine refactored code + new tests + new docs)
 - **Deliverable:** `docs/TASK_DECOMPOSITION_SPEC.md`
 
 **Task 5.2: Implement Multi-Agent Plan Generation**
+
 - Update `createExecutionPlan()` to generate swarms with >1 agent
 - Assign task chunks to appropriate agents based on specialization
 - Calculate total estimated budget and time for entire swarm
 - **Deliverable:** Enhanced `OrchestrationEngine.createExecutionPlan()`
 
 **Task 5.3: Build Swarm Coordinator**
+
 - Create SwarmCoordinator class that manages agent execution order
 - Implement dependency resolution (wait for upstream agents before starting downstream)
 - Handle partial failures (if one agent fails, decide whether to abort or continue)
 - **Deliverable:** `packages/nexus-core/src/swarm/SwarmCoordinator.ts`
 
 **Task 5.4: Implement Result Merging**
+
 - Define merge strategies for different agent output types (code diffs, test files, markdown docs)
 - Detect conflicts (e.g., two agents modify same line of code)
 - Provide conflict resolution UI for user
 - **Deliverable:** `packages/nexus-core/src/swarm/ResultMerger.ts`
 
 **Task 5.5: Add Swarm Visualization**
+
 - Create real-time swarm status view in VS Code
 - Show each agent's progress, current task, estimated completion time
 - Highlight dependencies (which agents are waiting on others)
 - **Deliverable:** `packages/synapse-bridge/src/SwarmVisualization.ts`
 
 **Acceptance Criteria:**
+
 - Developer types "refactor and test this class"
 - System generates ExecutionPlan with 2 agents (Alchemist + Sentinel)
 - Alchemist refactors code, Sentinel waits, then generates tests for refactored code
@@ -868,4 +945,4 @@ The Architect must decide: Is this a **demonstration of AI orchestration concept
 
 ---
 
-*Architectural review complete. Awaiting next directive.*
+_Architectural review complete. Awaiting next directive._
