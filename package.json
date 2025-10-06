@@ -1,0 +1,27 @@
+{
+  "name": "synapse-weaver-nexus",
+  "version": "0.1.0",
+  "description": "The Sentient Development Environment. An AI-orchestrated platform for total development lifecycle automation.",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "jest",
+    "test:e2e": "playwright test",
+    "lint": "echo \"Add lint command per package\"",
+    "playwright:install": "playwright install"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/jest": "^29.5.12",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "playwright": "^1.48.0",
+    "prettier": "^3.3.3",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

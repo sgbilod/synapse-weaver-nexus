@@ -1,0 +1,11 @@
+{
+  "name": "@synapse/docs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Documentation workspace for Synapse Weaver.",
+  "scripts": {
+    "build": "echo \"No build step for docs yet\"",
+    "lint": "echo \"No lint configured\"",
+    "test": "echo \"No tests for docs\""
+  }
+}

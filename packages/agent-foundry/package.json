@@ -1,0 +1,16 @@
+{
+  "name": "@synapse/agent-foundry",
+  "version": "0.1.0",
+  "description": "Templates and primitives for specialized Synapse Weaver agents.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "jest",
+    "lint": "eslint \"src/**/*.{ts,tsx}\""
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

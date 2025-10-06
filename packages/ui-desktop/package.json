@@ -1,0 +1,17 @@
+{
+  "name": "@synapse/ui-desktop",
+  "version": "0.1.0",
+  "description": "Electron/React desktop experience for Synapse Weaver.",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "jest",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "e2e": "playwright test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}
