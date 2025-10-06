@@ -14,6 +14,9 @@ const config: Config = {
       { tsconfig: "<rootDir>/tsconfig.base.json" },
     ],
   },
+  transformIgnorePatterns: [
+    "node_modules/(?!(uuid)/)",
+  ],
   testPathIgnorePatterns: ["<rootDir>/packages/ui-desktop/tests"],
 };
 
