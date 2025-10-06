@@ -2,6 +2,7 @@
 import * as vscode from "vscode";
 import { v4 as uuidv4 } from "uuid";
 import { parseIntent } from "./intentParser";
+import { OrchestrationEngine } from "../../nexus-core/src/OrchestrationEngine";
 
 // TaskVector type definition (copied from nexus-core for v1)
 interface TaskVector {
@@ -37,7 +38,9 @@ interface TaskVector {
  * Registers the synapse-weaver.activate command.
  */
 export function activate(context: vscode.ExtensionContext) {
-  console.log("[SYNAPSE-BRIDGE] Extension activated");
+  console.log("[Synapse Bridge] Activating...");
+  const nexusEngine = new OrchestrationEngine();
+  console.log("[Synapse Bridge] Nexus Core instance created in-process.");
 
   const disposable = vscode.commands.registerCommand(
     "synapse-weaver.activate",
@@ -101,14 +104,28 @@ export function activate(context: vscode.ExtensionContext) {
         },
       };
 
-      // Log the TaskVector to the VS Code Debug Console
-      console.log("--- Synapse Bridge: Task Vector Created ---");
-      console.log(JSON.stringify(taskVector, null, 2));
+      // Send TaskVector to Nexus Core and receive ExecutionPlan
+      try {
+        vscode.window.showInformationMessage(
+          "Synapse Weaver: Sending directive to Nexus Core..."
+        );
+        const executionPlan = await nexusEngine.receiveTask(taskVector);
 
-      // Show confirmation to user
-      vscode.window.showInformationMessage(
-        `Synapse Weaver: Task received (${parsedIntent.primaryAction}). Check Debug Console for details.`
-      );
+        // Log the cognitive output for debugging
+        console.log("--- Synapse Bridge: Execution Plan Received ---");
+        console.log(JSON.stringify(executionPlan, null, 2));
+
+        // Announce the decision to the user
+        const agentArchetype = executionPlan.swarm[0].agentProfile.archetype;
+        vscode.window.showInformationMessage(
+          `Synapse Weaver: Plan "${executionPlan.planId}" created. Deploying 1 ${agentArchetype} agent.`
+        );
+      } catch (error) {
+        console.error("[Synapse Bridge] Error communicating with Nexus Core:", error);
+        vscode.window.showErrorMessage(
+          "Synapse Weaver: Failed to process directive. See debug console for details."
+        );
+      }
     }
   );
 
