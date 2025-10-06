@@ -11,21 +11,19 @@ jest.mock("../../nexus-core/src/OrchestrationEngine", () => {
     OrchestrationEngine: jest.fn().mockImplementation(() => ({
       receiveTask: jest.fn().mockImplementation((vector, projectRootPath) =>
         Promise.resolve({
+          receiptId: "test-receipt-123",
           planId: "test-plan-123",
           taskId: vector.id,
-          taskVector: vector,
-          swarm: [
+          outcome: "COMPLETED",
+          finalCost: 1.5,
+          finalTimeSeconds: 30,
+          results: [
             {
-              agentProfile: {
-                archetype: "Sentinel",
-                specializations: ["jest", "typescript"],
-                costPerToken: 0.0001,
-                costPerSecond: 0.05,
-              },
+              agentId: "sentinel-jest-ts-v1",
+              output: "Test execution successful",
+              wasAccepted: true,
             },
           ],
-          estimatedBudget: 1.5,
-          estimatedTimeSeconds: 60,
         })
       ),
     })),
@@ -156,14 +154,17 @@ describe("Extension Integration Tests", () => {
         .fn()
         .mockImplementation((vector, projectRootPath) =>
           Promise.resolve({
+            receiptId: "test-receipt-123",
             planId: "test-plan-123",
             taskId: vector.id,
-            taskVector: vector,
-            swarm: [
+            outcome: "COMPLETED",
+            finalCost: 1.5,
+            finalTimeSeconds: 30,
+            results: [
               {
-                agentProfile: {
-                  archetype: "Sentinel",
-                },
+                agentId: "sentinel-jest-ts-v1",
+                output: "Test execution successful",
+                wasAccepted: true,
               },
             ],
           })
@@ -218,7 +219,7 @@ describe("Extension Integration Tests", () => {
       expect(projectRootPath).toBe("/test/workspace");
     });
 
-    it("should display ExecutionPlan to user after successful processing", async () => {
+    it("should display ExecutionReceipt to user after successful processing", async () => {
       (vscode.window as any).activeTextEditor = mockEditor;
       (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
         "refactor this code"
@@ -227,10 +228,10 @@ describe("Extension Integration Tests", () => {
       await commandHandler();
 
       expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-        expect.stringContaining('Plan "test-plan-123" created')
+        expect.stringContaining("Task completed successfully")
       );
       expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-        expect.stringContaining("Sentinel agent")
+        expect.stringContaining("test-receipt-123")
       );
     });
 

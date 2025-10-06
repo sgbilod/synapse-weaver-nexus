@@ -2,27 +2,37 @@
 import { v4 as uuidv4 } from "uuid";
 import Docker from "dockerode";
 import { IOrchestrationEngine } from "./nexus-core";
-import { TaskVector, ExecutionPlan, ExecutionReceipt } from "./cognitive.types";
+import { TaskVector, ExecutionPlan, ExecutionReceipt, AgentCredibility } from "./cognitive.types";
 import { AGENT_PROFILES } from "./mock.agents";
 
 export class OrchestrationEngine implements IOrchestrationEngine {
   private docker: Docker;
+  private agentCredibilityLedger: Map<string, AgentCredibility>;
 
   constructor() {
     this.docker = new Docker();
+    this.agentCredibilityLedger = new Map<string, AgentCredibility>();
   }
   public async receiveTask(
     vector: TaskVector,
     projectRootPath: string
-  ): Promise<ExecutionPlan> {
+  ): Promise<ExecutionReceipt> {
     console.log(
       `[NEXUS-CORE] Task ${vector.id} received. Creating execution plan...`
     );
     const plan = this.createExecutionPlan(vector);
     console.log(
-      `[NEXUS-CORE] Plan ${plan.planId} created. Ready for dispatch.`
+      `[NEXUS-CORE] Plan ${plan.planId} created. Dispatching swarm...`
     );
-    return Promise.resolve(plan);
+
+    const receipt = await this.dispatchSwarm(plan, projectRootPath);
+    console.log(
+      `[NEXUS-CORE] Swarm finished. Processing receipt ${receipt.receiptId}...`
+    );
+
+    this.processReceipt(receipt);
+
+    return receipt;
   }
 
   public createExecutionPlan(vector: TaskVector): ExecutionPlan {
@@ -69,6 +79,19 @@ export class OrchestrationEngine implements IOrchestrationEngine {
 
     const agent = plan.swarm[0]; // v1: single agent execution
     const agentProfile = agent.agentProfile;
+    const taskVector = plan.taskVector;
+
+    // Credibility check before execution
+    const requiredCredibility = taskVector.constraints.requiredCredibility;
+    const agentCredibility =
+      this.agentCredibilityLedger.get(agentProfile.id)?.score ?? 0.5;
+
+    if (agentCredibility < requiredCredibility) {
+      throw new Error(
+        `Agent ${agentProfile.id} has insufficient credibility (${agentCredibility.toFixed(2)}) to perform task requiring (${requiredCredibility}).`
+      );
+    }
+
     const agentName = agentProfile.id.toLowerCase().replace(/\s+/g, "-");
     const imageName = `synapse-agent-${agentName}:latest`;
     const dockerfilePath = `./packages/agent-foundry/src/${agentName}`;
@@ -187,10 +210,53 @@ export class OrchestrationEngine implements IOrchestrationEngine {
     }
   }
 
-  public processReceipt(receipt: ExecutionReceipt): void {
-    console.log(
-      `[NEXUS-CORE] Processing receipt for plan ${receipt.planId}. This feature is not yet implemented.`
+  public processReceipt(receipt: ExecutionReceipt): AgentCredibility {
+    const agentId = receipt.results[0].agentId;
+
+    // Get the agent's current credibility or create a new record.
+    let credibility = this.agentCredibilityLedger.get(agentId) ?? {
+      agentId,
+      score: 0.5, // Default starting score
+      history: [],
+    };
+
+    let credibilityChange = 0;
+    let historyOutcome: "SUCCESS" | "FAILURE" | "REJECTED";
+    
+    if (receipt.outcome === "COMPLETED" && receipt.results[0].wasAccepted) {
+      // Successful, accepted tasks build trust.
+      credibilityChange = 0.05;
+      historyOutcome = "SUCCESS";
+    } else if (receipt.outcome === "COMPLETED" && !receipt.results[0].wasAccepted) {
+      // Completed but rejected results
+      credibilityChange = -0.1;
+      historyOutcome = "REJECTED";
+    } else {
+      // Failures or cancellations erode trust significantly.
+      credibilityChange = -0.1;
+      historyOutcome = "FAILURE";
+    }
+
+    // Apply the change, capped between 0.0 and 1.0.
+    credibility.score = Math.max(
+      0.0,
+      Math.min(1.0, credibility.score + credibilityChange)
     );
-    // In the future, this will update the Agent Credibility Engine.
+
+    // Add the event to the agent's history.
+    credibility.history.push({
+      taskId: receipt.taskId,
+      outcome: historyOutcome,
+      credibilityChange,
+      timestamp: Date.now(),
+    });
+
+    // Update the ledger.
+    this.agentCredibilityLedger.set(agentId, credibility);
+    console.log(
+      `[NEXUS-CORE] Credibility for agent ${agentId} updated to ${credibility.score.toFixed(2)}`
+    );
+
+    return credibility;
   }
 }

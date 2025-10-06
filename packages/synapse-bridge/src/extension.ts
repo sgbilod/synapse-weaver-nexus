@@ -104,7 +104,7 @@ export function activate(context: vscode.ExtensionContext) {
         },
       };
 
-      // Send TaskVector to Nexus Core and receive ExecutionPlan
+      // Send TaskVector to Nexus Core and receive ExecutionReceipt
       try {
         // Get workspace root path
         const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -119,20 +119,29 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage(
           "Synapse Weaver: Sending directive to Nexus Core..."
         );
-        const executionPlan = await nexusEngine.receiveTask(
+        const executionReceipt = await nexusEngine.receiveTask(
           taskVector,
           projectRootPath
         );
 
-        // Log the cognitive output for debugging
-        console.log("--- Synapse Bridge: Execution Plan Received ---");
-        console.log(JSON.stringify(executionPlan, null, 2));
+        // Log the execution result for debugging
+        console.log("--- Synapse Bridge: Execution Receipt Received ---");
+        console.log(JSON.stringify(executionReceipt, null, 2));
 
-        // Announce the decision to the user
-        const agentArchetype = executionPlan.swarm[0].agentProfile.archetype;
-        vscode.window.showInformationMessage(
-          `Synapse Weaver: Plan "${executionPlan.planId}" created. Deploying 1 ${agentArchetype} agent.`
-        );
+        // Announce the result to the user
+        if (executionReceipt.outcome === "COMPLETED") {
+          vscode.window.showInformationMessage(
+            `Synapse Weaver: Task completed successfully! Receipt: ${executionReceipt.receiptId}`
+          );
+        } else if (executionReceipt.outcome === "FAILED") {
+          vscode.window.showErrorMessage(
+            `Synapse Weaver: Task failed. Reason: ${executionReceipt.failureAnalysis?.reason || "Unknown"}`
+          );
+        } else {
+          vscode.window.showWarningMessage(
+            `Synapse Weaver: Task was cancelled. Receipt: ${executionReceipt.receiptId}`
+          );
+        }
       } catch (error) {
         console.error(
           "[Synapse Bridge] Error communicating with Nexus Core:",

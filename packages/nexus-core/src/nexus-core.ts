@@ -1,5 +1,5 @@
 // packages/nexus-core/src/nexus-core.ts
-import { TaskVector, ExecutionPlan, ExecutionReceipt } from "./cognitive.types";
+import { TaskVector, ExecutionPlan, ExecutionReceipt, AgentCredibility } from "./cognitive.types";
 
 /**
  * The central orchestrator for the Synapse Weaver system.
@@ -16,7 +16,7 @@ export interface IOrchestrationEngine {
   receiveTask(
     vector: TaskVector,
     projectRootPath: string
-  ): Promise<ExecutionPlan>;
+  ): Promise<ExecutionReceipt>;
 
   /**
    * Analyzes a TaskVector using the Economic Genesis Engine to produce
@@ -39,5 +39,5 @@ export interface IOrchestrationEngine {
    * Updates the Agent Credibility Engine based on the results of an execution.
    * This is a critical part of the system's self-governing security model.
    */
-  processReceipt(receipt: ExecutionReceipt): void;
+  processReceipt(receipt: ExecutionReceipt): AgentCredibility;
 }
