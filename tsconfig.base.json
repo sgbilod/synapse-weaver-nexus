@@ -18,13 +18,6 @@
     "declaration": true,
     "sourceMap": true
   },
-  "include": [
-    "packages/**/*",
-    "tests/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.spec.ts"
-  ]
+  "include": ["packages/**/*", "tests/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts"]
 }
