@@ -106,10 +106,20 @@ export function activate(context: vscode.ExtensionContext) {
 
       // Send TaskVector to Nexus Core and receive ExecutionPlan
       try {
+        // Get workspace root path
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+          vscode.window.showErrorMessage(
+            "Synapse Weaver: No workspace folder is open. Please open a project folder."
+          );
+          return;
+        }
+        const projectRootPath = workspaceFolders[0].uri.fsPath;
+
         vscode.window.showInformationMessage(
           "Synapse Weaver: Sending directive to Nexus Core..."
         );
-        const executionPlan = await nexusEngine.receiveTask(taskVector);
+        const executionPlan = await nexusEngine.receiveTask(taskVector, projectRootPath);
 
         // Log the cognitive output for debugging
         console.log("--- Synapse Bridge: Execution Plan Received ---");

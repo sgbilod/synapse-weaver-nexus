@@ -63,6 +63,7 @@ export interface AgentCredibility {
 export interface ExecutionPlan {
   planId: string;
   taskId: string;
+  taskVector: TaskVector; // Reference to original task for agent execution context
   swarm: Array<{
     agentProfile: AgentProfile;
     taskChunk: string; // The specific sub-task for this agent

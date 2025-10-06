@@ -13,5 +13,14 @@ module.exports = {
   },
   workspace: {
     name: "test-workspace",
+    workspaceFolders: [
+      {
+        uri: {
+          fsPath: "/test/workspace",
+        },
+        name: "test-workspace",
+        index: 0,
+      },
+    ],
   },
 };

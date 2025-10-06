@@ -9,21 +9,25 @@ jest.mock("vscode");
 jest.mock("../../nexus-core/src/OrchestrationEngine", () => {
   return {
     OrchestrationEngine: jest.fn().mockImplementation(() => ({
-      receiveTask: jest.fn().mockResolvedValue({
-        planId: "test-plan-123",
-        swarm: [
-          {
-            agentProfile: {
-              archetype: "Sentinel",
-              specializations: ["jest", "typescript"],
-              costPerToken: 0.0001,
-              costPerSecond: 0.05,
+      receiveTask: jest.fn().mockImplementation((vector, projectRootPath) => 
+        Promise.resolve({
+          planId: "test-plan-123",
+          taskId: vector.id,
+          taskVector: vector,
+          swarm: [
+            {
+              agentProfile: {
+                archetype: "Sentinel",
+                specializations: ["jest", "typescript"],
+                costPerToken: 0.0001,
+                costPerSecond: 0.05,
+              },
             },
-          },
-        ],
-        estimatedBudget: 1.5,
-        estimatedTimeSeconds: 60,
-      }),
+          ],
+          estimatedBudget: 1.5,
+          estimatedTimeSeconds: 60,
+        })
+      ),
     })),
   };
 });
@@ -145,19 +149,23 @@ describe("Extension Integration Tests", () => {
       expect(vscode.window.showInformationMessage).not.toHaveBeenCalled();
     });
 
-    it("should call receiveTask with properly structured TaskVector", async () => {
+    it("should call receiveTask with properly structured TaskVector and projectRootPath", async () => {
       const OrchestrationEngineMock =
         require("../../nexus-core/src/OrchestrationEngine").OrchestrationEngine;
-      const mockReceiveTask = jest.fn().mockResolvedValue({
-        planId: "test-plan-123",
-        swarm: [
-          {
-            agentProfile: {
-              archetype: "Sentinel",
+      const mockReceiveTask = jest.fn().mockImplementation((vector, projectRootPath) =>
+        Promise.resolve({
+          planId: "test-plan-123",
+          taskId: vector.id,
+          taskVector: vector,
+          swarm: [
+            {
+              agentProfile: {
+                archetype: "Sentinel",
+              },
             },
-          },
-        ],
-      });
+          ],
+        })
+      );
 
       // Reset and recreate with new mock
       jest.clearAllMocks();
@@ -178,6 +186,7 @@ describe("Extension Integration Tests", () => {
 
       expect(mockReceiveTask).toHaveBeenCalledTimes(1);
 
+      // Check first argument (TaskVector)
       const taskVector = mockReceiveTask.mock.calls[0][0];
       expect(taskVector).toMatchObject({
         id: expect.any(String),
@@ -200,6 +209,11 @@ describe("Extension Integration Tests", () => {
           requiredCredibility: expect.any(Number),
         },
       });
+
+      // Check second argument (projectRootPath)
+      const projectRootPath = mockReceiveTask.mock.calls[0][1];
+      expect(typeof projectRootPath).toBe("string");
+      expect(projectRootPath).toBe("/test/workspace");
     });
 
     it("should display ExecutionPlan to user after successful processing", async () => {

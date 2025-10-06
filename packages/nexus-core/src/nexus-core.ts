@@ -10,8 +10,10 @@ export interface IOrchestrationEngine {
   /**
    * Receives a task from the Synapse Bridge and begins processing.
    * This is the primary entry point for all developer requests.
+   * @param vector - The task vector containing developer intent and context
+   * @param projectRootPath - Absolute path to the project root for agent execution
    */
-  receiveTask(vector: TaskVector): Promise<ExecutionPlan>;
+  receiveTask(vector: TaskVector, projectRootPath: string): Promise<ExecutionPlan>;
 
   /**
    * Analyzes a TaskVector using the Economic Genesis Engine to produce
@@ -22,8 +24,10 @@ export interface IOrchestrationEngine {
   /**
    * Deploys and manages an agent swarm based on a given plan.
    * This function handles the containerization and communication.
+   * @param plan - The execution plan to execute
+   * @param projectRootPath - Absolute path to the project root for Docker volume mounting
    */
-  dispatchSwarm(plan: ExecutionPlan): Promise<ExecutionReceipt>;
+  dispatchSwarm(plan: ExecutionPlan, projectRootPath: string): Promise<ExecutionReceipt>;
 
   /**
    * Updates the Agent Credibility Engine based on the results of an execution.
