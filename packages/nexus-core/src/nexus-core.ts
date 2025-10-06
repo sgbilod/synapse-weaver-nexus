@@ -13,7 +13,10 @@ export interface IOrchestrationEngine {
    * @param vector - The task vector containing developer intent and context
    * @param projectRootPath - Absolute path to the project root for agent execution
    */
-  receiveTask(vector: TaskVector, projectRootPath: string): Promise<ExecutionPlan>;
+  receiveTask(
+    vector: TaskVector,
+    projectRootPath: string
+  ): Promise<ExecutionPlan>;
 
   /**
    * Analyzes a TaskVector using the Economic Genesis Engine to produce
@@ -27,7 +30,10 @@ export interface IOrchestrationEngine {
    * @param plan - The execution plan to execute
    * @param projectRootPath - Absolute path to the project root for Docker volume mounting
    */
-  dispatchSwarm(plan: ExecutionPlan, projectRootPath: string): Promise<ExecutionReceipt>;
+  dispatchSwarm(
+    plan: ExecutionPlan,
+    projectRootPath: string
+  ): Promise<ExecutionReceipt>;
 
   /**
    * Updates the Agent Credibility Engine based on the results of an execution.

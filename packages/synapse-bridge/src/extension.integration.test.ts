@@ -9,7 +9,7 @@ jest.mock("vscode");
 jest.mock("../../nexus-core/src/OrchestrationEngine", () => {
   return {
     OrchestrationEngine: jest.fn().mockImplementation(() => ({
-      receiveTask: jest.fn().mockImplementation((vector, projectRootPath) => 
+      receiveTask: jest.fn().mockImplementation((vector, projectRootPath) =>
         Promise.resolve({
           planId: "test-plan-123",
           taskId: vector.id,
@@ -152,20 +152,22 @@ describe("Extension Integration Tests", () => {
     it("should call receiveTask with properly structured TaskVector and projectRootPath", async () => {
       const OrchestrationEngineMock =
         require("../../nexus-core/src/OrchestrationEngine").OrchestrationEngine;
-      const mockReceiveTask = jest.fn().mockImplementation((vector, projectRootPath) =>
-        Promise.resolve({
-          planId: "test-plan-123",
-          taskId: vector.id,
-          taskVector: vector,
-          swarm: [
-            {
-              agentProfile: {
-                archetype: "Sentinel",
+      const mockReceiveTask = jest
+        .fn()
+        .mockImplementation((vector, projectRootPath) =>
+          Promise.resolve({
+            planId: "test-plan-123",
+            taskId: vector.id,
+            taskVector: vector,
+            swarm: [
+              {
+                agentProfile: {
+                  archetype: "Sentinel",
+                },
               },
-            },
-          ],
-        })
-      );
+            ],
+          })
+        );
 
       // Reset and recreate with new mock
       jest.clearAllMocks();

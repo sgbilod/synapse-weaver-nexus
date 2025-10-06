@@ -11,7 +11,10 @@ export class OrchestrationEngine implements IOrchestrationEngine {
   constructor() {
     this.docker = new Docker();
   }
-  public async receiveTask(vector: TaskVector, projectRootPath: string): Promise<ExecutionPlan> {
+  public async receiveTask(
+    vector: TaskVector,
+    projectRootPath: string
+  ): Promise<ExecutionPlan> {
     console.log(
       `[NEXUS-CORE] Task ${vector.id} received. Creating execution plan...`
     );
@@ -58,9 +61,12 @@ export class OrchestrationEngine implements IOrchestrationEngine {
     return plan;
   }
 
-  public async dispatchSwarm(plan: ExecutionPlan, projectRootPath: string): Promise<ExecutionReceipt> {
+  public async dispatchSwarm(
+    plan: ExecutionPlan,
+    projectRootPath: string
+  ): Promise<ExecutionReceipt> {
     console.log(`[NEXUS-CORE] Dispatching swarm for plan ${plan.planId}...`);
-    
+
     const agent = plan.swarm[0]; // v1: single agent execution
     const agentProfile = agent.agentProfile;
     const agentName = agentProfile.id.toLowerCase().replace(/\s+/g, "-");
@@ -105,7 +111,9 @@ export class OrchestrationEngine implements IOrchestrationEngine {
 
       // Step 3: Wait for container to complete
       const result = await container.wait();
-      console.log(`[NEXUS-CORE] Container exited with status: ${result.StatusCode}`);
+      console.log(
+        `[NEXUS-CORE] Container exited with status: ${result.StatusCode}`
+      );
 
       // Step 4: Retrieve logs
       const logs = await container.logs({
@@ -150,9 +158,9 @@ export class OrchestrationEngine implements IOrchestrationEngine {
       return receipt;
     } catch (error) {
       console.error(`[NEXUS-CORE] Swarm dispatch failed:`, error);
-      
+
       const finalTimeSeconds = (Date.now() - startTime) / 1000;
-      
+
       // Generate failure receipt
       const receipt: ExecutionReceipt = {
         receiptId: uuidv4(),

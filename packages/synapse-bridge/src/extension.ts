@@ -119,7 +119,10 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage(
           "Synapse Weaver: Sending directive to Nexus Core..."
         );
-        const executionPlan = await nexusEngine.receiveTask(taskVector, projectRootPath);
+        const executionPlan = await nexusEngine.receiveTask(
+          taskVector,
+          projectRootPath
+        );
 
         // Log the cognitive output for debugging
         console.log("--- Synapse Bridge: Execution Plan Received ---");
