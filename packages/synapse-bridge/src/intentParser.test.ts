@@ -107,7 +107,7 @@ describe("intentParser", () => {
   describe("ParsedIntent structure", () => {
     it("should return a complete ParsedIntent object", () => {
       const result = parseIntent("test this function thoroughly");
-      
+
       expect(result).toHaveProperty("primaryAction");
       expect(result).toHaveProperty("subject");
       expect(result).toHaveProperty("context");
@@ -116,7 +116,7 @@ describe("intentParser", () => {
 
     it("should extract subject from intent string", () => {
       const result = parseIntent("refactor the authentication module");
-      
+
       expect(result.subject).toContain("authentication");
     });
 
@@ -124,7 +124,7 @@ describe("intentParser", () => {
       const resultLower = parseIntent("test this");
       const resultUpper = parseIntent("TEST this");
       const resultMixed = parseIntent("TeSt this");
-      
+
       expect(resultLower.primaryAction).toBe("TEST");
       expect(resultUpper.primaryAction).toBe("TEST");
       expect(resultMixed.primaryAction).toBe("TEST");

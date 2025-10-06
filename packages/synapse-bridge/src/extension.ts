@@ -121,7 +121,10 @@ export function activate(context: vscode.ExtensionContext) {
           `Synapse Weaver: Plan "${executionPlan.planId}" created. Deploying 1 ${agentArchetype} agent.`
         );
       } catch (error) {
-        console.error("[Synapse Bridge] Error communicating with Nexus Core:", error);
+        console.error(
+          "[Synapse Bridge] Error communicating with Nexus Core:",
+          error
+        );
         vscode.window.showErrorMessage(
           "Synapse Weaver: Failed to process directive. See debug console for details."
         );

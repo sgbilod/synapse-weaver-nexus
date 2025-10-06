@@ -72,8 +72,9 @@ describe("Extension Integration Tests", () => {
     });
 
     it("should create OrchestrationEngine instance on activation", () => {
-      const OrchestrationEngineMock = require("../../nexus-core/src/OrchestrationEngine").OrchestrationEngine;
-      
+      const OrchestrationEngineMock =
+        require("../../nexus-core/src/OrchestrationEngine").OrchestrationEngine;
+
       activate(mockContext);
 
       expect(OrchestrationEngineMock).toHaveBeenCalledTimes(1);
@@ -85,7 +86,7 @@ describe("Extension Integration Tests", () => {
 
     beforeEach(() => {
       activate(mockContext);
-      
+
       // Extract the command handler function
       const registerCommandMock = vscode.commands.registerCommand as jest.Mock;
       commandHandler = registerCommandMock.mock.calls[0][1];
@@ -121,7 +122,9 @@ describe("Extension Integration Tests", () => {
 
     it("should prompt user for directive with input box", async () => {
       (vscode.window as any).activeTextEditor = mockEditor;
-      (vscode.window.showInputBox as jest.Mock).mockResolvedValue("test this code");
+      (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
+        "test this code"
+      );
 
       await commandHandler();
 
@@ -143,7 +146,8 @@ describe("Extension Integration Tests", () => {
     });
 
     it("should call receiveTask with properly structured TaskVector", async () => {
-      const OrchestrationEngineMock = require("../../nexus-core/src/OrchestrationEngine").OrchestrationEngine;
+      const OrchestrationEngineMock =
+        require("../../nexus-core/src/OrchestrationEngine").OrchestrationEngine;
       const mockReceiveTask = jest.fn().mockResolvedValue({
         planId: "test-plan-123",
         swarm: [
@@ -166,12 +170,14 @@ describe("Extension Integration Tests", () => {
       const newCommandHandler = registerCommandMock.mock.calls[0][1];
 
       (vscode.window as any).activeTextEditor = mockEditor;
-      (vscode.window.showInputBox as jest.Mock).mockResolvedValue("test this function");
+      (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
+        "test this function"
+      );
 
       await newCommandHandler();
 
       expect(mockReceiveTask).toHaveBeenCalledTimes(1);
-      
+
       const taskVector = mockReceiveTask.mock.calls[0][0];
       expect(taskVector).toMatchObject({
         id: expect.any(String),
@@ -198,7 +204,9 @@ describe("Extension Integration Tests", () => {
 
     it("should display ExecutionPlan to user after successful processing", async () => {
       (vscode.window as any).activeTextEditor = mockEditor;
-      (vscode.window.showInputBox as jest.Mock).mockResolvedValue("refactor this code");
+      (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
+        "refactor this code"
+      );
 
       await commandHandler();
 
@@ -211,10 +219,11 @@ describe("Extension Integration Tests", () => {
     });
 
     it("should handle errors gracefully and display error message", async () => {
-      const OrchestrationEngineMock = require("../../nexus-core/src/OrchestrationEngine").OrchestrationEngine;
-      const mockReceiveTaskError = jest.fn().mockRejectedValue(
-        new Error("Nexus Core communication failure")
-      );
+      const OrchestrationEngineMock =
+        require("../../nexus-core/src/OrchestrationEngine").OrchestrationEngine;
+      const mockReceiveTaskError = jest
+        .fn()
+        .mockRejectedValue(new Error("Nexus Core communication failure"));
 
       // Reset and recreate with error mock
       jest.clearAllMocks();
