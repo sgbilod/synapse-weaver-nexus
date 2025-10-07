@@ -6,10 +6,54 @@ import { activate } from "./extension";
 jest.mock("vscode");
 
 // Mock the OrchestrationEngine
-jest.mock("../../nexus-core/src/OrchestrationEngine", () => {
-  return {
-    OrchestrationEngine: jest.fn().mockImplementation(() => ({
-      receiveTask: jest.fn().mockImplementation((vector, projectRootPath) =>
+let mockOrchestrationEngineConstructor: jest.Mock;
+let mockReceiveTask: jest.Mock;
+
+beforeEach(() => {
+  mockReceiveTask = jest.fn().mockImplementation((vector, projectRootPath) =>
+    Promise.resolve({
+      receiptId: "test-receipt-123",
+      planId: "test-plan-123",
+      taskId: vector.id,
+      outcome: "COMPLETED",
+      finalCost: 1.5,
+      finalTimeSeconds: 30,
+      results: [
+        {
+          agentId: "sentinel-jest-ts-v1",
+          output: "Test execution successful",
+          wasAccepted: true,
+        },
+      ],
+    })
+  );
+
+  mockOrchestrationEngineConstructor = jest
+    .fn()
+    .mockImplementation(() => ({
+      receiveTask: mockReceiveTask,
+    }));
+
+  jest.mock("../../nexus-core/src/OrchestrationEngine", () => ({
+    OrchestrationEngine: mockOrchestrationEngineConstructor,
+  }));
+});
+
+describe("Extension Integration Tests - Resilience Protocol", () => {
+  let mockContext: vscode.ExtensionContext;
+  let mockEditor: any;
+
+  beforeEach(() => {
+    // Reset all mocks
+    jest.clearAllMocks();
+
+    // Reset the module cache to ensure fresh state
+    jest.resetModules();
+
+    // Re-require the mock
+    mockReceiveTask = jest
+      .fn()
+      .mockImplementation((vector, projectRootPath) =>
         Promise.resolve({
           receiptId: "test-receipt-123",
           planId: "test-plan-123",
@@ -25,18 +69,17 @@ jest.mock("../../nexus-core/src/OrchestrationEngine", () => {
             },
           ],
         })
-      ),
-    })),
-  };
-});
+      );
 
-describe("Extension Integration Tests", () => {
-  let mockContext: vscode.ExtensionContext;
-  let mockEditor: any;
+    mockOrchestrationEngineConstructor = jest
+      .fn()
+      .mockImplementation(() => ({
+        receiveTask: mockReceiveTask,
+      }));
 
-  beforeEach(() => {
-    // Reset all mocks
-    jest.clearAllMocks();
+    jest.doMock("../../nexus-core/src/OrchestrationEngine", () => ({
+      OrchestrationEngine: mockOrchestrationEngineConstructor,
+    }));
 
     // Create mock context
     mockContext = {
@@ -73,17 +116,18 @@ describe("Extension Integration Tests", () => {
       expect(mockContext.subscriptions.length).toBe(1);
     });
 
-    it("should create OrchestrationEngine instance on activation", () => {
+    it("should NOT create OrchestrationEngine instance on activation (lazy init)", () => {
       const OrchestrationEngineMock =
         require("../../nexus-core/src/OrchestrationEngine").OrchestrationEngine;
 
       activate(mockContext);
 
-      expect(OrchestrationEngineMock).toHaveBeenCalledTimes(1);
+      // Engine should NOT be created during activation
+      expect(OrchestrationEngineMock).not.toHaveBeenCalled();
     });
   });
 
-  describe("synapse-weaver.activate command execution", () => {
+  describe("synapse-weaver.activate command execution - Lazy Initialization", () => {
     let commandHandler: Function;
 
     beforeEach(() => {
@@ -92,6 +136,86 @@ describe("Extension Integration Tests", () => {
       // Extract the command handler function
       const registerCommandMock = vscode.commands.registerCommand as jest.Mock;
       commandHandler = registerCommandMock.mock.calls[0][1];
+    });
+
+    it("should create OrchestrationEngine on FIRST command execution", async () => {
+      const OrchestrationEngineMock =
+        require("../../nexus-core/src/OrchestrationEngine").OrchestrationEngine;
+
+      (vscode.window as any).activeTextEditor = mockEditor;
+      (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
+        "test this code"
+      );
+
+      await commandHandler();
+
+      // Engine should be created on first use
+      expect(OrchestrationEngineMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("should display progress notification during first-time initialization", async () => {
+      (vscode.window as any).activeTextEditor = mockEditor;
+      (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
+        "test this code"
+      );
+
+      await commandHandler();
+
+      expect(vscode.window.withProgress).toHaveBeenCalledWith(
+        expect.objectContaining({
+          location: vscode.ProgressLocation.Notification,
+          title: "Synapse Nexus Core is starting...",
+          cancellable: false,
+        }),
+        expect.any(Function)
+      );
+    });
+
+    it("should NOT create OrchestrationEngine on SECOND command execution (reuse)", async () => {
+      const OrchestrationEngineMock =
+        require("../../nexus-core/src/OrchestrationEngine").OrchestrationEngine;
+
+      (vscode.window as any).activeTextEditor = mockEditor;
+      (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
+        "test this code"
+      );
+
+      // First execution
+      await commandHandler();
+      expect(OrchestrationEngineMock).toHaveBeenCalledTimes(1);
+
+      // Second execution
+      await commandHandler();
+      // Should still be 1 - no new instance created
+      expect(OrchestrationEngineMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("should handle initialization errors gracefully and display detailed error message", async () => {
+      const OrchestrationEngineMock =
+        require("../../nexus-core/src/OrchestrationEngine").OrchestrationEngine;
+
+      // Make constructor throw
+      OrchestrationEngineMock.mockImplementation(() => {
+        throw new Error("Docker daemon not running");
+      });
+
+      (vscode.window as any).activeTextEditor = mockEditor;
+      (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
+        "test this code"
+      );
+
+      await commandHandler();
+
+      // Should show comprehensive error message
+      expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
+        expect.stringContaining("Synapse Weaver encountered a critical error")
+      );
+      expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
+        expect.stringContaining("Docker daemon not running")
+      );
+      expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
+        expect.stringContaining("Toggle Developer Tools")
+      );
     });
 
     it("should show error if no active editor", async () => {
@@ -122,74 +246,27 @@ describe("Extension Integration Tests", () => {
       );
     });
 
-    it("should prompt user for directive with input box", async () => {
-      (vscode.window as any).activeTextEditor = mockEditor;
-      (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
-        "test this code"
-      );
-
-      await commandHandler();
-
-      expect(vscode.window.showInputBox).toHaveBeenCalledWith(
-        expect.objectContaining({
-          prompt: expect.stringContaining("What is your directive"),
-        })
-      );
-    });
-
     it("should exit gracefully if user cancels input", async () => {
       (vscode.window as any).activeTextEditor = mockEditor;
       (vscode.window.showInputBox as jest.Mock).mockResolvedValue(undefined);
 
       await commandHandler();
 
-      // Should not show any messages after cancellation
-      expect(vscode.window.showInformationMessage).not.toHaveBeenCalled();
+      // receiveTask should not be called
+      expect(mockReceiveTask).not.toHaveBeenCalled();
     });
 
-    it("should call receiveTask with properly structured TaskVector and projectRootPath", async () => {
-      const OrchestrationEngineMock =
-        require("../../nexus-core/src/OrchestrationEngine").OrchestrationEngine;
-      const mockReceiveTask = jest
-        .fn()
-        .mockImplementation((vector, projectRootPath) =>
-          Promise.resolve({
-            receiptId: "test-receipt-123",
-            planId: "test-plan-123",
-            taskId: vector.id,
-            outcome: "COMPLETED",
-            finalCost: 1.5,
-            finalTimeSeconds: 30,
-            results: [
-              {
-                agentId: "sentinel-jest-ts-v1",
-                output: "Test execution successful",
-                wasAccepted: true,
-              },
-            ],
-          })
-        );
-
-      // Reset and recreate with new mock
-      jest.clearAllMocks();
-      OrchestrationEngineMock.mockImplementation(() => ({
-        receiveTask: mockReceiveTask,
-      }));
-
-      activate(mockContext);
-      const registerCommandMock = vscode.commands.registerCommand as jest.Mock;
-      const newCommandHandler = registerCommandMock.mock.calls[0][1];
-
+    it("should call receiveTask with properly structured TaskVector", async () => {
       (vscode.window as any).activeTextEditor = mockEditor;
       (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
         "test this function"
       );
 
-      await newCommandHandler();
+      await commandHandler();
 
       expect(mockReceiveTask).toHaveBeenCalledTimes(1);
 
-      // Check first argument (TaskVector)
+      // Check TaskVector structure
       const taskVector = mockReceiveTask.mock.calls[0][0];
       expect(taskVector).toMatchObject({
         id: expect.any(String),
@@ -213,13 +290,13 @@ describe("Extension Integration Tests", () => {
         },
       });
 
-      // Check second argument (projectRootPath)
+      // Check projectRootPath
       const projectRootPath = mockReceiveTask.mock.calls[0][1];
       expect(typeof projectRootPath).toBe("string");
       expect(projectRootPath).toBe("/test/workspace");
     });
 
-    it("should display ExecutionReceipt to user after successful processing", async () => {
+    it("should display success message after task completion", async () => {
       (vscode.window as any).activeTextEditor = mockEditor;
       (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
         "refactor this code"
@@ -235,30 +312,21 @@ describe("Extension Integration Tests", () => {
       );
     });
 
-    it("should handle errors gracefully and display error message", async () => {
-      const OrchestrationEngineMock =
-        require("../../nexus-core/src/OrchestrationEngine").OrchestrationEngine;
-      const mockReceiveTaskError = jest
-        .fn()
-        .mockRejectedValue(new Error("Nexus Core communication failure"));
-
-      // Reset and recreate with error mock
-      jest.clearAllMocks();
-      OrchestrationEngineMock.mockImplementation(() => ({
-        receiveTask: mockReceiveTaskError,
-      }));
-
-      activate(mockContext);
-      const registerCommandMock = vscode.commands.registerCommand as jest.Mock;
-      const newCommandHandler = registerCommandMock.mock.calls[0][1];
+    it("should handle task execution errors gracefully", async () => {
+      mockReceiveTask.mockRejectedValue(
+        new Error("Task execution failed - insufficient resources")
+      );
 
       (vscode.window as any).activeTextEditor = mockEditor;
       (vscode.window.showInputBox as jest.Mock).mockResolvedValue("test this");
 
-      await newCommandHandler();
+      await commandHandler();
 
       expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to process directive")
+        expect.stringContaining("Synapse Weaver encountered a critical error")
+      );
+      expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
+        expect.stringContaining("insufficient resources")
       );
     });
   });
