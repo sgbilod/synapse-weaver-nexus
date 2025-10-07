@@ -173,3 +173,244 @@ describe("Agent Credibility Engine", () => {
     ).rejects.toThrow(/insufficient credibility/);
   });
 });
+
+describe("Personal En-gram System", () => {
+  let engine: OrchestrationEngine;
+
+  beforeEach(() => {
+    engine = new OrchestrationEngine();
+  });
+
+  const createMockReceipt = (
+    output: string,
+    wasAccepted: boolean = true
+  ): ExecutionReceipt => ({
+    receiptId: "mock-receipt-id",
+    planId: "mock-plan-id",
+    taskId: "mock-task-id",
+    outcome: "COMPLETED",
+    finalCost: 1.5,
+    finalTimeSeconds: 30,
+    results: [
+      {
+        agentId: "sentinel-jest-ts-v1",
+        output,
+        wasAccepted,
+      },
+    ],
+  });
+
+  test("should detect and store spaces indentation style", () => {
+    const spacesCode = `function test() {
+  const x = 1;
+  const y = 2;
+  return x + y;
+}`;
+
+    const receipt = createMockReceipt(spacesCode);
+    engine.processReceipt(receipt);
+
+    // Create a plan to verify the learned style is applied
+    const vector: TaskVector = {
+      id: "test-task",
+      timestamp: Date.now(),
+      sourceCode: "test",
+      naturalLanguageIntent: "create a function",
+      parsedIntent: {
+        primaryAction: "CREATE",
+        subject: "function",
+        context: [],
+      },
+      projectContext: {
+        projectId: "test",
+        filePath: "/test.ts",
+        projectStyleGuide: {},
+      },
+      constraints: {
+        maxBudget: 10,
+        maxTimeSeconds: 300,
+        requiredCredibility: 0.5,
+      },
+    };
+
+    const plan = engine.createExecutionPlan(vector);
+    expect(plan.swarm[0].taskChunk).toContain("Use spaces for indentation");
+  });
+
+  test("should detect and store tabs indentation style", () => {
+    const tabsCode = `function test() {
+\tconst x = 1;
+\tconst y = 2;
+\treturn x + y;
+}`;
+
+    const receipt = createMockReceipt(tabsCode);
+    engine.processReceipt(receipt);
+
+    const vector: TaskVector = {
+      id: "test-task",
+      timestamp: Date.now(),
+      sourceCode: "test",
+      naturalLanguageIntent: "create a function",
+      parsedIntent: {
+        primaryAction: "CREATE",
+        subject: "function",
+        context: [],
+      },
+      projectContext: {
+        projectId: "test",
+        filePath: "/test.ts",
+        projectStyleGuide: {},
+      },
+      constraints: {
+        maxBudget: 10,
+        maxTimeSeconds: 300,
+        requiredCredibility: 0.5,
+      },
+    };
+
+    const plan = engine.createExecutionPlan(vector);
+    expect(plan.swarm[0].taskChunk).toContain("Use tabs for indentation");
+  });
+
+  test("should detect and store single quote style", () => {
+    const singleQuoteCode = `const message = 'hello';
+const name = 'world';
+const greeting = 'hello world';`;
+
+    const receipt = createMockReceipt(singleQuoteCode);
+    engine.processReceipt(receipt);
+
+    const vector: TaskVector = {
+      id: "test-task",
+      timestamp: Date.now(),
+      sourceCode: "test",
+      naturalLanguageIntent: "create a variable",
+      parsedIntent: {
+        primaryAction: "CREATE",
+        subject: "variable",
+        context: [],
+      },
+      projectContext: {
+        projectId: "test",
+        filePath: "/test.ts",
+        projectStyleGuide: {},
+      },
+      constraints: {
+        maxBudget: 10,
+        maxTimeSeconds: 300,
+        requiredCredibility: 0.5,
+      },
+    };
+
+    const plan = engine.createExecutionPlan(vector);
+    expect(plan.swarm[0].taskChunk).toContain("Use single quotes for strings");
+  });
+
+  test("should detect and store double quote style", () => {
+    const doubleQuoteCode = `const message = "hello";
+const name = "world";
+const greeting = "hello world";`;
+
+    const receipt = createMockReceipt(doubleQuoteCode);
+    engine.processReceipt(receipt);
+
+    const vector: TaskVector = {
+      id: "test-task",
+      timestamp: Date.now(),
+      sourceCode: "test",
+      naturalLanguageIntent: "create a variable",
+      parsedIntent: {
+        primaryAction: "CREATE",
+        subject: "variable",
+        context: [],
+      },
+      projectContext: {
+        projectId: "test",
+        filePath: "/test.ts",
+        projectStyleGuide: {},
+      },
+      constraints: {
+        maxBudget: 10,
+        maxTimeSeconds: 300,
+        requiredCredibility: 0.5,
+      },
+    };
+
+    const plan = engine.createExecutionPlan(vector);
+    expect(plan.swarm[0].taskChunk).toContain("Use double quotes for strings");
+  });
+
+  test("should apply combined style guidance from learned patterns", () => {
+    // First, learn from code with spaces and double quotes
+    const learnedCode = `function example() {
+  const message = "Hello World";
+  const count = 42;
+  return message;
+}`;
+
+    const receipt = createMockReceipt(learnedCode);
+    engine.processReceipt(receipt);
+
+    // Now create a plan and verify both styles are applied
+    const vector: TaskVector = {
+      id: "test-task",
+      timestamp: Date.now(),
+      sourceCode: "test",
+      naturalLanguageIntent: "implement feature",
+      parsedIntent: {
+        primaryAction: "CREATE",
+        subject: "feature",
+        context: [],
+      },
+      projectContext: {
+        projectId: "test",
+        filePath: "/test.ts",
+        projectStyleGuide: {},
+      },
+      constraints: {
+        maxBudget: 10,
+        maxTimeSeconds: 300,
+        requiredCredibility: 0.5,
+      },
+    };
+
+    const plan = engine.createExecutionPlan(vector);
+    
+    // Should contain both guidance elements
+    expect(plan.swarm[0].taskChunk).toContain("Use spaces for indentation");
+    expect(plan.swarm[0].taskChunk).toContain("Use double quotes for strings");
+    expect(plan.swarm[0].taskChunk).toContain("Follow this style guidance:");
+  });
+
+  test("should not apply guidance when no patterns learned", () => {
+    // Don't learn anything, just create a plan
+    const vector: TaskVector = {
+      id: "test-task",
+      timestamp: Date.now(),
+      sourceCode: "test",
+      naturalLanguageIntent: "create something",
+      parsedIntent: {
+        primaryAction: "CREATE",
+        subject: "something",
+        context: [],
+      },
+      projectContext: {
+        projectId: "test",
+        filePath: "/test.ts",
+        projectStyleGuide: {},
+      },
+      constraints: {
+        maxBudget: 10,
+        maxTimeSeconds: 300,
+        requiredCredibility: 0.5,
+      },
+    };
+
+    const plan = engine.createExecutionPlan(vector);
+    
+    // Should be unchanged
+    expect(plan.swarm[0].taskChunk).toBe("create something");
+    expect(plan.swarm[0].taskChunk).not.toContain("Follow this style guidance");
+  });
+});

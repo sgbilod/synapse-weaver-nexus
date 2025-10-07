@@ -7,16 +7,23 @@ import {
   ExecutionPlan,
   ExecutionReceipt,
   AgentCredibility,
+  PersonalEnclave,
 } from "./cognitive.types";
 import { AGENT_PROFILES } from "./mock.agents";
 
 export class OrchestrationEngine implements IOrchestrationEngine {
   private docker: Docker;
   private agentCredibilityLedger: Map<string, AgentCredibility>;
+  private personalEnclave: PersonalEnclave;
 
   constructor() {
     this.docker = new Docker();
     this.agentCredibilityLedger = new Map<string, AgentCredibility>();
+    this.personalEnclave = {
+      indentation: 'unknown',
+      quoteStyle: 'unknown',
+      preferredLibraries: new Set<string>(),
+    };
   }
   public async receiveTask(
     vector: TaskVector,
@@ -59,6 +66,9 @@ export class OrchestrationEngine implements IOrchestrationEngine {
         break;
     }
 
+    // Apply learned style guidance to the task
+    const styleAwareIntent = this.applyStyleGuidance(vector.naturalLanguageIntent);
+
     const plan: ExecutionPlan = {
       planId,
       taskId: vector.id,
@@ -66,7 +76,7 @@ export class OrchestrationEngine implements IOrchestrationEngine {
       swarm: [
         {
           agentProfile: selectedAgentProfile,
-          taskChunk: vector.naturalLanguageIntent, // v1 sends the full intent to one agent
+          taskChunk: styleAwareIntent, // Use the style-aware intent here
         },
       ],
       estimatedBudget: selectedAgentProfile.costPerSecond * 30, // Placeholder budget
@@ -232,6 +242,9 @@ export class OrchestrationEngine implements IOrchestrationEngine {
       // Successful, accepted tasks build trust.
       credibilityChange = 0.05;
       historyOutcome = "SUCCESS";
+      
+      // Learn from accepted code
+      this.observeAndLearn(receipt.results[0].output);
     } else if (
       receipt.outcome === "COMPLETED" &&
       !receipt.results[0].wasAccepted
@@ -266,5 +279,45 @@ export class OrchestrationEngine implements IOrchestrationEngine {
     );
 
     return credibility;
+  }
+
+  private observeAndLearn(acceptedCode: string): void {
+    // Indentation analysis
+    const spaceIndentations = (acceptedCode.match(/^ +/gm) || []).length;
+    const tabIndentations = (acceptedCode.match(/^\t+/gm) || []).length;
+    if (spaceIndentations > tabIndentations) {
+      this.personalEnclave.indentation = 'spaces';
+    } else if (tabIndentations > spaceIndentations) {
+      this.personalEnclave.indentation = 'tabs';
+    }
+
+    // Quote style analysis
+    const singleQuotes = (acceptedCode.match(/'/g) || []).length;
+    const doubleQuotes = (acceptedCode.match(/"/g) || []).length;
+    if (singleQuotes > doubleQuotes) {
+      this.personalEnclave.quoteStyle = 'single';
+    } else if (doubleQuotes > singleQuotes) {
+      this.personalEnclave.quoteStyle = 'double';
+    }
+
+    console.log('[NEXUS-CORE] Personal En-gram updated:', this.personalEnclave);
+  }
+
+  private applyStyleGuidance(baseIntent: string): string {
+    let guidance = 'Follow this style guidance: ';
+    const guidanceParts: string[] = [];
+
+    if (this.personalEnclave.indentation !== 'unknown') {
+      guidanceParts.push(`Use ${this.personalEnclave.indentation} for indentation.`);
+    }
+    if (this.personalEnclave.quoteStyle !== 'unknown') {
+      guidanceParts.push(`Use ${this.personalEnclave.quoteStyle} quotes for strings.`);
+    }
+
+    if (guidanceParts.length === 0) {
+      return baseIntent; // No guidance to apply yet
+    }
+
+    return `${baseIntent}. ${guidance}${guidanceParts.join(' ')}`;
   }
 }
