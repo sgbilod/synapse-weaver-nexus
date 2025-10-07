@@ -45,7 +45,7 @@ describe("Extension Integration Tests - Resilience Protocol", () => {
     jest.clearAllMocks();
     mockReceiveTask.mockClear();
     mockOrchestrationEngineConstructor.mockClear();
-    
+
     // CRITICAL: Clear the vscode.window mocks to reset withProgress call tracking
     (vscode.window.withProgress as jest.Mock).mockClear();
     (vscode.window.showErrorMessage as jest.Mock).mockClear();
@@ -102,12 +102,15 @@ describe("Extension Integration Tests - Resilience Protocol", () => {
       mockContext = {
         subscriptions: [],
       } as any;
-      
+
       activate(mockContext);
 
       // Extract the command handler function
       const registerCommandMock = vscode.commands.registerCommand as jest.Mock;
-      commandHandler = registerCommandMock.mock.calls[registerCommandMock.mock.calls.length - 1][1];
+      commandHandler =
+        registerCommandMock.mock.calls[
+          registerCommandMock.mock.calls.length - 1
+        ][1];
     });
 
     it("should handle initialization errors gracefully and display detailed error message", async () => {
@@ -127,7 +130,7 @@ describe("Extension Integration Tests - Resilience Protocol", () => {
       const errorCalls = (vscode.window.showErrorMessage as jest.Mock).mock
         .calls;
       expect(errorCalls.length).toBeGreaterThan(0);
-      
+
       const errorMessage = errorCalls[0][0];
       expect(errorMessage).toContain(
         "Synapse Weaver encountered a critical error"
@@ -146,8 +149,9 @@ describe("Extension Integration Tests - Resilience Protocol", () => {
 
       // Verify engine created
       expect(mockOrchestrationEngineConstructor).toHaveBeenCalled();
-      const firstCallCount = mockOrchestrationEngineConstructor.mock.calls.length;
-      
+      const firstCallCount =
+        mockOrchestrationEngineConstructor.mock.calls.length;
+
       // Verify progress UI was shown
       expect(vscode.window.withProgress).toHaveBeenCalled();
 
@@ -157,7 +161,7 @@ describe("Extension Integration Tests - Resilience Protocol", () => {
 
       // SECOND execution - should reuse engine (no new creation, no progress UI)
       await commandHandler();
-      
+
       expect(mockOrchestrationEngineConstructor).not.toHaveBeenCalled();
       expect(vscode.window.withProgress).not.toHaveBeenCalled();
     });
