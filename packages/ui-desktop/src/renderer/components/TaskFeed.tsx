@@ -1,13 +1,13 @@
 /**
  * TaskFeed - The Activity Stream
- * 
+ *
  * Displays a real-time log of system events: tasks received, plans created,
  * agents dispatched, receipts processed.
  */
 
-import React, { useEffect, useRef } from 'react';
-import type { SystemEvent } from '../../preload';
-import './TaskFeed.css';
+import React, { useEffect, useRef } from "react";
+import type { SystemEvent } from "../../preload";
+import "./TaskFeed.css";
 
 interface TaskFeedProps {
   events: SystemEvent[];
@@ -18,7 +18,7 @@ export const TaskFeed: React.FC<TaskFeedProps> = ({ events }) => {
 
   // Auto-scroll to bottom when new events arrive
   useEffect(() => {
-    feedEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    feedEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [events]);
 
   return (
@@ -40,7 +40,9 @@ export const TaskFeed: React.FC<TaskFeedProps> = ({ events }) => {
               >
                 <div className="event-header">
                   <span className="event-icon">{getEventIcon(event.type)}</span>
-                  <span className="event-type">{formatEventType(event.type)}</span>
+                  <span className="event-type">
+                    {formatEventType(event.type)}
+                  </span>
                   <span className="event-timestamp">
                     {formatTimestamp(event.timestamp)}
                   </span>
@@ -64,21 +66,21 @@ export const TaskFeed: React.FC<TaskFeedProps> = ({ events }) => {
 /**
  * Get icon for event type
  */
-function getEventIcon(type: SystemEvent['type']): string {
-  const icons: Record<SystemEvent['type'], string> = {
-    TASK_RECEIVED: '📥',
-    PLAN_CREATED: '📋',
-    AGENT_DISPATCHED: '🚀',
-    RECEIPT_PROCESSED: '✅'
+function getEventIcon(type: SystemEvent["type"]): string {
+  const icons: Record<SystemEvent["type"], string> = {
+    TASK_RECEIVED: "📥",
+    PLAN_CREATED: "📋",
+    AGENT_DISPATCHED: "🚀",
+    RECEIPT_PROCESSED: "✅",
   };
-  return icons[type] || '📌';
+  return icons[type] || "📌";
 }
 
 /**
  * Format event type for display
  */
-function formatEventType(type: SystemEvent['type']): string {
-  return type.replace(/_/g, ' ');
+function formatEventType(type: SystemEvent["type"]): string {
+  return type.replace(/_/g, " ");
 }
 
 /**
@@ -86,8 +88,8 @@ function formatEventType(type: SystemEvent['type']): string {
  */
 function formatTimestamp(timestamp: number): string {
   const date = new Date(timestamp);
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const seconds = date.getSeconds().toString().padStart(2, '0');
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const seconds = date.getSeconds().toString().padStart(2, "0");
   return `${hours}:${minutes}:${seconds}`;
 }

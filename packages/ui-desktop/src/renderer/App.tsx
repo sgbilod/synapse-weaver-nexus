@@ -1,16 +1,16 @@
 /**
  * App.tsx - The Command Deck's Main Interface
- * 
+ *
  * This is the primary React component that orchestrates the three-panel layout
  * and manages the connection to the Nexus Core via IPC.
  */
 
-import React, { useState, useEffect } from 'react';
-import { StateMonitor } from './components/StateMonitor';
-import { TaskFeed } from './components/TaskFeed';
-import { DetailView } from './components/DetailView';
-import type { NexusState } from '../preload';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import { StateMonitor } from "./components/StateMonitor";
+import { TaskFeed } from "./components/TaskFeed";
+import { DetailView } from "./components/DetailView";
+import type { NexusState } from "../preload";
+import "./App.css";
 
 export const App: React.FC = () => {
   const [nexusState, setNexusState] = useState<NexusState | null>(null);
@@ -20,13 +20,15 @@ export const App: React.FC = () => {
   useEffect(() => {
     const initializeState = async () => {
       try {
-        console.log('[COMMAND DECK] Requesting initial state from Nexus Core...');
+        console.log(
+          "[COMMAND DECK] Requesting initial state from Nexus Core..."
+        );
         const initialState = await window.nexusApi.getInitialState();
         setNexusState(initialState);
         setIsConnected(true);
-        console.log('[COMMAND DECK] Initial state received:', initialState);
+        console.log("[COMMAND DECK] Initial state received:", initialState);
       } catch (error) {
-        console.error('[COMMAND DECK] Failed to get initial state:', error);
+        console.error("[COMMAND DECK] Failed to get initial state:", error);
         setIsConnected(false);
       }
     };
@@ -37,7 +39,7 @@ export const App: React.FC = () => {
   // Listen for real-time state updates
   useEffect(() => {
     const handleStateUpdate = (updatedState: NexusState) => {
-      console.log('[COMMAND DECK] State update received:', updatedState);
+      console.log("[COMMAND DECK] State update received:", updatedState);
       setNexusState(updatedState);
     };
 
@@ -75,7 +77,7 @@ export const App: React.FC = () => {
       <main className="app-main">
         <div className="panel-container">
           <section className="panel panel-left">
-            <StateMonitor 
+            <StateMonitor
               personalEnclave={nexusState.personalEnclave}
               agentCredibilityLedger={nexusState.agentCredibilityLedger}
             />

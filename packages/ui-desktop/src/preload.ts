@@ -1,11 +1,11 @@
 /**
  * Preload Script - The Bridge Between Worlds
- * 
+ *
  * This script runs in a secure context with access to both Node.js and the renderer.
  * It uses Electron's contextBridge to safely expose specific APIs to the frontend.
  */
 
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer } from "electron";
 
 /**
  * The NexusApi - A secure portal for the Command Deck to communicate with the Nexus Core.
@@ -30,8 +30,8 @@ export interface NexusApi {
 
 export interface NexusState {
   personalEnclave: {
-    indentation: 'spaces' | 'tabs' | 'unknown';
-    quoteStyle: 'single' | 'double' | 'unknown';
+    indentation: "spaces" | "tabs" | "unknown";
+    quoteStyle: "single" | "double" | "unknown";
     preferredLibraries: string[];
   };
   agentCredibilityLedger: Record<string, number>;
@@ -40,22 +40,26 @@ export interface NexusState {
 
 export interface SystemEvent {
   timestamp: number;
-  type: 'TASK_RECEIVED' | 'PLAN_CREATED' | 'AGENT_DISPATCHED' | 'RECEIPT_PROCESSED';
+  type:
+    | "TASK_RECEIVED"
+    | "PLAN_CREATED"
+    | "AGENT_DISPATCHED"
+    | "RECEIPT_PROCESSED";
   message: string;
   details?: any;
 }
 
 // Expose the protected API to the renderer process
-contextBridge.exposeInMainWorld('nexusApi', {
-  getInitialState: () => ipcRenderer.invoke('nexus:get-initial-state'),
-  
+contextBridge.exposeInMainWorld("nexusApi", {
+  getInitialState: () => ipcRenderer.invoke("nexus:get-initial-state"),
+
   onStateUpdate: (callback: (state: NexusState) => void) => {
-    ipcRenderer.on('nexus:state-updated', (_event, state) => callback(state));
+    ipcRenderer.on("nexus:state-updated", (_event, state) => callback(state));
   },
 
   removeStateUpdateListener: () => {
-    ipcRenderer.removeAllListeners('nexus:state-updated');
-  }
+    ipcRenderer.removeAllListeners("nexus:state-updated");
+  },
 } as NexusApi);
 
 // Type augmentation for window object

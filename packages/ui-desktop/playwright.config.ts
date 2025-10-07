@@ -1,25 +1,25 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Playwright configuration for Electron E2E tests
  */
 export default defineConfig({
-  testDir: './tests',
+  testDir: "./tests",
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: 1,
-  reporter: 'list',
-  
+  reporter: "list",
+
   use: {
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
   },
 
   projects: [
     {
-      name: 'electron',
-      testMatch: '**/*.spec.ts',
+      name: "electron",
+      testMatch: "**/*.spec.ts",
     },
   ],
 });

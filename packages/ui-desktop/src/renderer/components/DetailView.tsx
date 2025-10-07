@@ -1,11 +1,11 @@
 /**
  * DetailView - The Inspection Panel
- * 
+ *
  * Placeholder for future detailed views of selected tasks, agents, or plans.
  */
 
-import React from 'react';
-import './DetailView.css';
+import React from "react";
+import "./DetailView.css";
 
 export const DetailView: React.FC = () => {
   return (

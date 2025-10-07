@@ -1,17 +1,19 @@
 /**
  * Renderer Main Entry Point
- * 
+ *
  * This is where the React application boots up and mounts to the DOM.
  */
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { App } from './App';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { App } from "./App";
 
-const rootElement = document.getElementById('root');
+const rootElement = document.getElementById("root");
 
 if (!rootElement) {
-  throw new Error('Failed to find the root element. The Nexus cannot manifest.');
+  throw new Error(
+    "Failed to find the root element. The Nexus cannot manifest."
+  );
 }
 
 const root = ReactDOM.createRoot(rootElement);
@@ -22,4 +24,4 @@ root.render(
   </React.StrictMode>
 );
 
-console.log('[COMMAND DECK] Renderer process initialized');
+console.log("[COMMAND DECK] Renderer process initialized");
