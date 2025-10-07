@@ -4,7 +4,7 @@ import {
   ExecutionPlan,
   ExecutionReceipt,
   AgentCredibility,
-} from "./cognitive.types";
+} from "./cognitive.types.js";
 
 /**
  * The central orchestrator for the Synapse Weaver system.

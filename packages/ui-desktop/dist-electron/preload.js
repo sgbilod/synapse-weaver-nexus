@@ -1,1 +1,11 @@
-"use strict";const e=require("electron");e.contextBridge.exposeInMainWorld("nexusApi",{getInitialState:()=>e.ipcRenderer.invoke("nexus:get-initial-state"),onStateUpdate:t=>{e.ipcRenderer.on("nexus:state-updated",(i,n)=>t(n))},removeStateUpdateListener:()=>{e.ipcRenderer.removeAllListeners("nexus:state-updated")}});
+"use strict";
+const electron = require("electron");
+electron.contextBridge.exposeInMainWorld("nexusApi", {
+  getInitialState: () => electron.ipcRenderer.invoke("nexus:get-initial-state"),
+  onStateUpdate: (callback) => {
+    electron.ipcRenderer.on("nexus:state-updated", (_event, state) => callback(state));
+  },
+  removeStateUpdateListener: () => {
+    electron.ipcRenderer.removeAllListeners("nexus:state-updated");
+  }
+});

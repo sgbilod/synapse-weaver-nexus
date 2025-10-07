@@ -6,11 +6,11 @@ export type {
   ExecutionPlan,
   ExecutionReceipt,
   PersonalEnclave,
-} from "./cognitive.types";
+} from "./cognitive.types.js";
 
 // Export orchestration engine interface and implementation
-export type { IOrchestrationEngine } from "./nexus-core";
-export { OrchestrationEngine } from "./OrchestrationEngine";
+export type { IOrchestrationEngine } from "./nexus-core.js";
+export { OrchestrationEngine } from "./OrchestrationEngine.js";
 
 // Legacy placeholder exports (to be refactored)
 export interface EconomicDirective {

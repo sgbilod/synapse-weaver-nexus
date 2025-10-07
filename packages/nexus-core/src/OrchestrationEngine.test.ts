@@ -1,6 +1,6 @@
 // packages/nexus-core/src/OrchestrationEngine.test.ts
-import { OrchestrationEngine } from "./OrchestrationEngine";
-import { TaskVector, ExecutionReceipt } from "./cognitive.types";
+import { OrchestrationEngine } from "./OrchestrationEngine.js";
+import { TaskVector, ExecutionReceipt } from "./cognitive.types.js";
 
 describe("OrchestrationEngine v1", () => {
   let engine: OrchestrationEngine;

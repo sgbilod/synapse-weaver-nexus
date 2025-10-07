@@ -1,5 +1,5 @@
 // packages/nexus-core/src/mock.agents.ts
-import { AgentProfile } from "./cognitive.types";
+import { AgentProfile } from "./cognitive.types.js";
 
 export const AGENT_PROFILES: Record<string, AgentProfile> = {
   SENTINEL_JEST_TS: {

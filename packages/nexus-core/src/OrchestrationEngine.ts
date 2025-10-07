@@ -1,15 +1,15 @@
 // packages/nexus-core/src/OrchestrationEngine.ts
 import { v4 as uuidv4 } from "uuid";
 import Docker from "dockerode";
-import { IOrchestrationEngine } from "./nexus-core";
+import { IOrchestrationEngine } from "./nexus-core.js";
 import {
   TaskVector,
   ExecutionPlan,
   ExecutionReceipt,
   AgentCredibility,
   PersonalEnclave,
-} from "./cognitive.types";
-import { AGENT_PROFILES } from "./mock.agents";
+} from "./cognitive.types.js";
+import { AGENT_PROFILES } from "./mock.agents.js";
 
 export class OrchestrationEngine implements IOrchestrationEngine {
   private docker: Docker;
