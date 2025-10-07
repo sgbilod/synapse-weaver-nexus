@@ -15,7 +15,7 @@ const config: Config = {
   transform: {
     "^.+\\.(t|j)sx?$": [
       "ts-jest",
-      { 
+      {
         tsconfig: "<rootDir>/tsconfig.base.json",
         useESM: true,
       },
