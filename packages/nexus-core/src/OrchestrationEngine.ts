@@ -20,8 +20,8 @@ export class OrchestrationEngine implements IOrchestrationEngine {
     this.docker = new Docker();
     this.agentCredibilityLedger = new Map<string, AgentCredibility>();
     this.personalEnclave = {
-      indentation: 'unknown',
-      quoteStyle: 'unknown',
+      indentation: "unknown",
+      quoteStyle: "unknown",
       preferredLibraries: new Set<string>(),
     };
   }
@@ -67,7 +67,9 @@ export class OrchestrationEngine implements IOrchestrationEngine {
     }
 
     // Apply learned style guidance to the task
-    const styleAwareIntent = this.applyStyleGuidance(vector.naturalLanguageIntent);
+    const styleAwareIntent = this.applyStyleGuidance(
+      vector.naturalLanguageIntent
+    );
 
     const plan: ExecutionPlan = {
       planId,
@@ -242,7 +244,7 @@ export class OrchestrationEngine implements IOrchestrationEngine {
       // Successful, accepted tasks build trust.
       credibilityChange = 0.05;
       historyOutcome = "SUCCESS";
-      
+
       // Learn from accepted code
       this.observeAndLearn(receipt.results[0].output);
     } else if (
@@ -286,38 +288,42 @@ export class OrchestrationEngine implements IOrchestrationEngine {
     const spaceIndentations = (acceptedCode.match(/^ +/gm) || []).length;
     const tabIndentations = (acceptedCode.match(/^\t+/gm) || []).length;
     if (spaceIndentations > tabIndentations) {
-      this.personalEnclave.indentation = 'spaces';
+      this.personalEnclave.indentation = "spaces";
     } else if (tabIndentations > spaceIndentations) {
-      this.personalEnclave.indentation = 'tabs';
+      this.personalEnclave.indentation = "tabs";
     }
 
     // Quote style analysis
     const singleQuotes = (acceptedCode.match(/'/g) || []).length;
     const doubleQuotes = (acceptedCode.match(/"/g) || []).length;
     if (singleQuotes > doubleQuotes) {
-      this.personalEnclave.quoteStyle = 'single';
+      this.personalEnclave.quoteStyle = "single";
     } else if (doubleQuotes > singleQuotes) {
-      this.personalEnclave.quoteStyle = 'double';
+      this.personalEnclave.quoteStyle = "double";
     }
 
-    console.log('[NEXUS-CORE] Personal En-gram updated:', this.personalEnclave);
+    console.log("[NEXUS-CORE] Personal En-gram updated:", this.personalEnclave);
   }
 
   private applyStyleGuidance(baseIntent: string): string {
-    let guidance = 'Follow this style guidance: ';
+    let guidance = "Follow this style guidance: ";
     const guidanceParts: string[] = [];
 
-    if (this.personalEnclave.indentation !== 'unknown') {
-      guidanceParts.push(`Use ${this.personalEnclave.indentation} for indentation.`);
+    if (this.personalEnclave.indentation !== "unknown") {
+      guidanceParts.push(
+        `Use ${this.personalEnclave.indentation} for indentation.`
+      );
     }
-    if (this.personalEnclave.quoteStyle !== 'unknown') {
-      guidanceParts.push(`Use ${this.personalEnclave.quoteStyle} quotes for strings.`);
+    if (this.personalEnclave.quoteStyle !== "unknown") {
+      guidanceParts.push(
+        `Use ${this.personalEnclave.quoteStyle} quotes for strings.`
+      );
     }
 
     if (guidanceParts.length === 0) {
       return baseIntent; // No guidance to apply yet
     }
 
-    return `${baseIntent}. ${guidance}${guidanceParts.join(' ')}`;
+    return `${baseIntent}. ${guidance}${guidanceParts.join(" ")}`;
   }
 }

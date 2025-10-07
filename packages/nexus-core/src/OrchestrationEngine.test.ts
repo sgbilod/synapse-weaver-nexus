@@ -376,7 +376,7 @@ const greeting = "hello world";`;
     };
 
     const plan = engine.createExecutionPlan(vector);
-    
+
     // Should contain both guidance elements
     expect(plan.swarm[0].taskChunk).toContain("Use spaces for indentation");
     expect(plan.swarm[0].taskChunk).toContain("Use double quotes for strings");
@@ -408,7 +408,7 @@ const greeting = "hello world";`;
     };
 
     const plan = engine.createExecutionPlan(vector);
-    
+
     // Should be unchanged
     expect(plan.swarm[0].taskChunk).toBe("create something");
     expect(plan.swarm[0].taskChunk).not.toContain("Follow this style guidance");

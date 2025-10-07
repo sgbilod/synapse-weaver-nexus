@@ -100,7 +100,7 @@ export interface ExecutionReceipt {
  * This is the core data structure for the Personal En-gram.
  */
 export interface PersonalEnclave {
-  indentation: 'spaces' | 'tabs' | 'unknown';
-  quoteStyle: 'single' | 'double' | 'unknown';
+  indentation: "spaces" | "tabs" | "unknown";
+  quoteStyle: "single" | "double" | "unknown";
   preferredLibraries: Set<string>;
 }
