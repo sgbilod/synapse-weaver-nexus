@@ -1,0 +1,250 @@
+
+> synapse-weaver-nexus@0.1.0 test
+> jest packages/synapse-bridge/src/extension.integration.test.ts
+
+  console.log
+    [Synapse Bridge] Activating...
+
+      at activate (packages/synapse-bridge/src/extension.ts:44:11)
+
+  console.log
+    [Synapse Bridge] Activating...
+
+      at activate (packages/synapse-bridge/src/extension.ts:44:11)
+
+  console.log
+    [Synapse Bridge] Activating...
+
+      at activate (packages/synapse-bridge/src/extension.ts:44:11)
+
+  console.log
+    [Synapse Bridge] Activating...
+
+      at activate (packages/synapse-bridge/src/extension.ts:44:11)
+
+  console.log
+    [Synapse Bridge] Nexus Core instance created in-process.
+
+      at packages/synapse-bridge/src/extension.ts:65:25
+
+  console.log
+    --- Synapse Bridge: Execution Receipt Received ---
+
+      at packages/synapse-bridge/src/extension.ts:166:17
+
+  console.log
+    {
+      "receiptId": "test-receipt-123",
+      "planId": "test-plan-123",
+      "taskId": "078999f9-faa2-4ed7-9612-541ed5adc1cc",
+      "outcome": "COMPLETED",
+      "finalCost": 1.5,
+      "finalTimeSeconds": 30,
+      "results": [
+        {
+          "agentId": "sentinel-jest-ts-v1",
+          "output": "Test execution successful",
+          "wasAccepted": true
+        }
+      ]
+    }
+
+      at packages/synapse-bridge/src/extension.ts:167:17
+
+  console.log
+    --- Synapse Bridge: Execution Receipt Received ---
+
+      at packages/synapse-bridge/src/extension.ts:166:17
+
+  console.log
+    {
+      "receiptId": "test-receipt-123",
+      "planId": "test-plan-123",
+      "taskId": "6de7b49a-0691-43fb-9ba0-68bdd6449425",
+      "outcome": "COMPLETED",
+      "finalCost": 1.5,
+      "finalTimeSeconds": 30,
+      "results": [
+        {
+          "agentId": "sentinel-jest-ts-v1",
+          "output": "Test execution successful",
+          "wasAccepted": true
+        }
+      ]
+    }
+
+      at packages/synapse-bridge/src/extension.ts:167:17
+
+  console.log
+    [Synapse Bridge] Activating...
+
+      at activate (packages/synapse-bridge/src/extension.ts:44:11)
+
+  console.log
+    --- Synapse Bridge: Execution Receipt Received ---
+
+      at packages/synapse-bridge/src/extension.ts:166:17
+
+  console.log
+    {
+      "receiptId": "test-receipt-123",
+      "planId": "test-plan-123",
+      "taskId": "76144076-a437-43f4-8ee8-89abc47e546f",
+      "outcome": "COMPLETED",
+      "finalCost": 1.5,
+      "finalTimeSeconds": 30,
+      "results": [
+        {
+          "agentId": "sentinel-jest-ts-v1",
+          "output": "Test execution successful",
+          "wasAccepted": true
+        }
+      ]
+    }
+
+      at packages/synapse-bridge/src/extension.ts:167:17
+
+  console.log
+    [Synapse Bridge] Activating...
+
+      at activate (packages/synapse-bridge/src/extension.ts:44:11)
+
+  console.log
+    [Synapse Bridge] Activating...
+
+      at activate (packages/synapse-bridge/src/extension.ts:44:11)
+
+  console.log
+    [Synapse Bridge] Activating...
+
+      at activate (packages/synapse-bridge/src/extension.ts:44:11)
+
+  console.log
+    [Synapse Bridge] Activating...
+
+      at activate (packages/synapse-bridge/src/extension.ts:44:11)
+
+  console.log
+    --- Synapse Bridge: Execution Receipt Received ---
+
+      at packages/synapse-bridge/src/extension.ts:166:17
+
+  console.log
+    {
+      "receiptId": "test-receipt-123",
+      "planId": "test-plan-123",
+      "taskId": "829c9c48-7dcd-43c6-80b2-2d5c71ee75d8",
+      "outcome": "COMPLETED",
+      "finalCost": 1.5,
+      "finalTimeSeconds": 30,
+      "results": [
+        {
+          "agentId": "sentinel-jest-ts-v1",
+          "output": "Test execution successful",
+          "wasAccepted": true
+        }
+      ]
+    }
+
+      at packages/synapse-bridge/src/extension.ts:167:17
+
+  console.log
+    [Synapse Bridge] Activating...
+
+      at activate (packages/synapse-bridge/src/extension.ts:44:11)
+
+  console.log
+    --- Synapse Bridge: Execution Receipt Received ---
+
+      at packages/synapse-bridge/src/extension.ts:166:17
+
+  console.log
+    {
+      "receiptId": "test-receipt-123",
+      "planId": "test-plan-123",
+      "taskId": "9fe9a141-50af-46b7-8bdd-2024ef7feca2",
+      "outcome": "COMPLETED",
+      "finalCost": 1.5,
+      "finalTimeSeconds": 30,
+      "results": [
+        {
+          "agentId": "sentinel-jest-ts-v1",
+          "output": "Test execution successful",
+          "wasAccepted": true
+        }
+      ]
+    }
+
+      at packages/synapse-bridge/src/extension.ts:167:17
+
+  console.log
+    [Synapse Bridge] Activating...
+
+      at activate (packages/synapse-bridge/src/extension.ts:44:11)
+
+  console.error
+    [Synapse Bridge] A fatal error occurred: Error: Task execution failed - insufficient resources
+        at Object.<anonymous> (C:\Users\sgbil\synapse-weaver-nexus\synapse-weaver-nexus\packages\synapse-bridge\src\extension.integration.test.ts:259:9)
+        at Promise.then.completed (C:\Users\sgbil\synapse-weaver-nexus\synapse-weaver-nexus\node_modules\jest-circus\build\utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (C:\Users\sgbil\synapse-weaver-nexus\synapse-weaver-nexus\node_modules\jest-circus\build\utils.js:231:10)
+        at _callCircusTest (C:\Users\sgbil\synapse-weaver-nexus\synapse-weaver-nexus\node_modules\jest-circus\build\run.js:316:40)
+        at async _runTest (C:\Users\sgbil\synapse-weaver-nexus\synapse-weaver-nexus\node_modules\jest-circus\build\run.js:252:3)
+        at async _runTestsForDescribeBlock (C:\Users\sgbil\synapse-weaver-nexus\synapse-weaver-nexus\node_modules\jest-circus\build\run.js:126:9)
+        at async _runTestsForDescribeBlock (C:\Users\sgbil\synapse-weaver-nexus\synapse-weaver-nexus\node_modules\jest-circus\build\run.js:121:9)
+        at async _runTestsForDescribeBlock (C:\Users\sgbil\synapse-weaver-nexus\synapse-weaver-nexus\node_modules\jest-circus\build\run.js:121:9)
+        at async run (C:\Users\sgbil\synapse-weaver-nexus\synapse-weaver-nexus\node_modules\jest-circus\build\run.js:71:3)
+        at async runAndTransformResultsToJestFormat (C:\Users\sgbil\synapse-weaver-nexus\synapse-weaver-nexus\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+        at async jestAdapter (C:\Users\sgbil\synapse-weaver-nexus\synapse-weaver-nexus\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+        at async runTestInternal (C:\Users\sgbil\synapse-weaver-nexus\synapse-weaver-nexus\node_modules\jest-runner\build\runTest.js:367:16)
+        at async runTest (C:\Users\sgbil\synapse-weaver-nexus\synapse-weaver-nexus\node_modules\jest-runner\build\runTest.js:444:34)
+
+    [0m [90m 182 |[39m         }
+     [90m 183 |[39m       } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 184 |[39m         console[33m.[39merror([32m"[Synapse Bridge] A fatal error occurred:"[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 185 |[39m         vscode[33m.[39mwindow[33m.[39mshowErrorMessage(
+     [90m 186 |[39m           [32m`Synapse Weaver encountered a critical error: ${error instanceof Error ? error.message : "Unknown error"}. Please check the debug console (Help > Toggle Developer Tools) and ensure Docker is running.`[39m
+     [90m 187 |[39m         )[33m;[39m[0m
+
+      at packages/synapse-bridge/src/extension.ts:184:17
+      at async Object.<anonymous> (packages/synapse-bridge/src/extension.integration.test.ts:265:7)
+
+FAIL packages/synapse-bridge/src/extension.integration.test.ts (7.974 s)
+  Extension Integration Tests - Resilience Protocol
+    activate function
+      ΓêÜ should register the synapse-weaver.activate command (70 ms)
+      ΓêÜ should add command disposable to subscriptions (7 ms)
+      ΓêÜ should NOT create OrchestrationEngine instance on activation (lazy init) (5 ms)
+    synapse-weaver.activate command execution - Lazy Initialization
+      ΓêÜ should create OrchestrationEngine with progress UI on FIRST command, then reuse on SECOND (1561 ms)
+      ├ù should handle initialization errors gracefully and display detailed error message (25 ms)
+      ΓêÜ should show error if no active editor (8 ms)
+      ΓêÜ should show info message if no text selected (4 ms)
+      ΓêÜ should exit gracefully if user cancels input (3 ms)
+      ΓêÜ should call receiveTask with properly structured TaskVector (9 ms)
+      ΓêÜ should display success message after task completion (7 ms)
+      ΓêÜ should handle task execution errors gracefully (19 ms)
+
+  ΓùÅ Extension Integration Tests - Resilience Protocol ΓÇ║ synapse-weaver.activate command execution - Lazy Initialization ΓÇ║ should handle initialization errors gracefully and display detailed error message
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      154 |       const errorCalls = (vscode.window.showErrorMessage as jest.Mock).mock
+      155 |         .calls;
+    > 156 |       expect(errorCalls.length).toBeGreaterThan(0);
+          |                                 ^
+      157 |       
+      158 |       const errorMessage = errorCalls[0][0];
+      159 |       expect(errorMessage).toContain(
+
+      at Object.<anonymous> (packages/synapse-bridge/src/extension.integration.test.ts:156:33)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 10 passed, 11 total
+Snapshots:   0 total
+Time:        8.223 s, estimated 10 s
+Ran all test suites matching /packages\\synapse-bridge\\src\\extension.integration.test.ts/i.
