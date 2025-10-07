@@ -87,7 +87,7 @@ describe("Agent Credibility Engine", () => {
 
   test("should increase agent credibility on successful, accepted task", () => {
     const receipt = createMockReceipt("COMPLETED", true);
-    
+
     const credibility = engine.processReceipt(receipt);
 
     expect(credibility.score).toBeGreaterThan(0.5); // Started at 0.5, should increase
@@ -99,7 +99,7 @@ describe("Agent Credibility Engine", () => {
 
   test("should decrease agent credibility on failed task", () => {
     const receipt = createMockReceipt("FAILED", false);
-    
+
     const credibility = engine.processReceipt(receipt);
 
     expect(credibility.score).toBeLessThan(0.5); // Started at 0.5, should decrease
@@ -111,12 +111,14 @@ describe("Agent Credibility Engine", () => {
 
   test("should cap credibility scores at 0.0 and 1.0", () => {
     const agentId = "test-agent";
-    
+
     // Test lower bound: simulate 10 failures
     for (let i = 0; i < 10; i++) {
       engine.processReceipt(createMockReceipt("FAILED", false, agentId));
     }
-    let credibility = engine.processReceipt(createMockReceipt("FAILED", false, agentId));
+    let credibility = engine.processReceipt(
+      createMockReceipt("FAILED", false, agentId)
+    );
     expect(credibility.score).toBe(0.0);
     expect(credibility.score).toBeGreaterThanOrEqual(0.0);
 
@@ -125,14 +127,16 @@ describe("Agent Credibility Engine", () => {
     for (let i = 0; i < 20; i++) {
       newEngine.processReceipt(createMockReceipt("COMPLETED", true, agentId));
     }
-    credibility = newEngine.processReceipt(createMockReceipt("COMPLETED", true, agentId));
+    credibility = newEngine.processReceipt(
+      createMockReceipt("COMPLETED", true, agentId)
+    );
     expect(credibility.score).toBe(1.0);
     expect(credibility.score).toBeLessThanOrEqual(1.0);
   });
 
   test("should throw error when agent credibility is insufficient", async () => {
     const agentId = "sentinel-jest-ts-v1";
-    
+
     // Lower the agent's credibility by causing failures
     for (let i = 0; i < 3; i++) {
       engine.processReceipt(createMockReceipt("FAILED", false, agentId));

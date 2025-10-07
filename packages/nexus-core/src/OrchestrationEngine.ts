@@ -2,7 +2,12 @@
 import { v4 as uuidv4 } from "uuid";
 import Docker from "dockerode";
 import { IOrchestrationEngine } from "./nexus-core";
-import { TaskVector, ExecutionPlan, ExecutionReceipt, AgentCredibility } from "./cognitive.types";
+import {
+  TaskVector,
+  ExecutionPlan,
+  ExecutionReceipt,
+  AgentCredibility,
+} from "./cognitive.types";
 import { AGENT_PROFILES } from "./mock.agents";
 
 export class OrchestrationEngine implements IOrchestrationEngine {
@@ -222,12 +227,15 @@ export class OrchestrationEngine implements IOrchestrationEngine {
 
     let credibilityChange = 0;
     let historyOutcome: "SUCCESS" | "FAILURE" | "REJECTED";
-    
+
     if (receipt.outcome === "COMPLETED" && receipt.results[0].wasAccepted) {
       // Successful, accepted tasks build trust.
       credibilityChange = 0.05;
       historyOutcome = "SUCCESS";
-    } else if (receipt.outcome === "COMPLETED" && !receipt.results[0].wasAccepted) {
+    } else if (
+      receipt.outcome === "COMPLETED" &&
+      !receipt.results[0].wasAccepted
+    ) {
       // Completed but rejected results
       credibilityChange = -0.1;
       historyOutcome = "REJECTED";
