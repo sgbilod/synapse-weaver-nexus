@@ -147,6 +147,72 @@ ipcMain.handle("nexus:get-initial-state", async () => {
 });
 
 /**
+ * IPC Handler: Submit Task
+ */
+ipcMain.handle("nexus:submit-task", async (_event, task: string) => {
+  console.log(`[COMMAND DECK] Task received: "${task}"`);
+
+  logSystemEvent("TASK_RECEIVED", `Task submitted: ${task}`, { task });
+
+  try {
+    // Create a TaskVector from the natural language input
+    const taskVector = {
+      id: `task-${Date.now()}`,
+      timestamp: Date.now(),
+      sourceCode: "", // No source code context from Command Deck
+      naturalLanguageIntent: task,
+      parsedIntent: {
+        primaryAction: "CREATE" as const,
+        subject: task,
+        context: [],
+      },
+      projectContext: {
+        projectId: "command-deck",
+        filePath: "",
+        projectStyleGuide: {},
+      },
+      constraints: {
+        maxBudget: 1000,
+        maxTimeSeconds: 300,
+        requiredCredibility: 0.5,
+      },
+    };
+
+    // Use current directory as project root (for now)
+    const projectRoot = process.cwd();
+
+    logSystemEvent("PLAN_CREATED", `Creating execution plan for task...`, {
+      taskId: taskVector.id,
+    });
+
+    // Send task to the Nexus Core for processing
+    const receipt = await nexusEngine.receiveTask(taskVector, projectRoot);
+
+    logSystemEvent(
+      "AGENT_DISPATCHED",
+      `Execution plan ${receipt.planId} dispatched`,
+      { planId: receipt.planId, outcome: receipt.outcome }
+    );
+
+    logSystemEvent(
+      "RECEIPT_PROCESSED",
+      `Task ${receipt.outcome.toLowerCase()}: Cost ${receipt.finalCost}, Time ${receipt.finalTimeSeconds}s`,
+      { receiptId: receipt.receiptId, results: receipt.results }
+    );
+
+    console.log("[COMMAND DECK] Task successfully processed");
+  } catch (error) {
+    console.error("[COMMAND DECK] Task processing failed:", error);
+    logSystemEvent(
+      "RECEIPT_PROCESSED",
+      `Task processing failed: ${error instanceof Error ? error.message : String(error)}`,
+      { task, error }
+    );
+    throw error;
+  }
+});
+
+/**
  * App Lifecycle: Ready
  */
 app.whenReady().then(() => {

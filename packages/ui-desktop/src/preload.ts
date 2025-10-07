@@ -18,6 +18,11 @@ export interface NexusApi {
   getInitialState: () => Promise<NexusState>;
 
   /**
+   * Submit a task to the Nexus Core for processing.
+   */
+  submitTask: (task: string) => Promise<void>;
+
+  /**
    * Register a callback to receive real-time state updates from the Nexus.
    */
   onStateUpdate: (callback: (state: NexusState) => void) => void;
@@ -52,6 +57,8 @@ export interface SystemEvent {
 // Expose the protected API to the renderer process
 contextBridge.exposeInMainWorld("nexusApi", {
   getInitialState: () => ipcRenderer.invoke("nexus:get-initial-state"),
+
+  submitTask: (task: string) => ipcRenderer.invoke("nexus:submit-task", task),
 
   onStateUpdate: (callback: (state: NexusState) => void) => {
     ipcRenderer.on("nexus:state-updated", (_event, state) => callback(state));

@@ -9,12 +9,14 @@ import React, { useState, useEffect } from "react";
 import { StateMonitor } from "./components/StateMonitor";
 import { TaskFeed } from "./components/TaskFeed";
 import { DetailView } from "./components/DetailView";
+import { TaskInput } from "./components/TaskInput";
 import type { NexusState } from "../preload";
 import "./App.css";
 
 export const App: React.FC = () => {
   const [nexusState, setNexusState] = useState<NexusState | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [isProcessingTask, setIsProcessingTask] = useState(false);
 
   // Fetch initial state on mount
   useEffect(() => {
@@ -51,6 +53,19 @@ export const App: React.FC = () => {
     };
   }, []);
 
+  // Handle task submission
+  const handleTaskSubmit = async (task: string) => {
+    setIsProcessingTask(true);
+    try {
+      await window.nexusApi.submitTask(task);
+      console.log("[COMMAND DECK] Task submitted successfully");
+    } catch (error) {
+      console.error("[COMMAND DECK] Failed to submit task:", error);
+    } finally {
+      setIsProcessingTask(false);
+    }
+  };
+
   if (!isConnected || !nexusState) {
     return (
       <div className="app-loading">
@@ -75,6 +90,11 @@ export const App: React.FC = () => {
       </header>
 
       <main className="app-main">
+        <TaskInput
+          onTaskSubmit={handleTaskSubmit}
+          isProcessing={isProcessingTask}
+        />
+
         <div className="panel-container">
           <section className="panel panel-left">
             <StateMonitor
