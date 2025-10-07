@@ -1,0 +1,136 @@
+.task-feed {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.feed-container {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.empty-feed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 1rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+.pulse-dot {
+  width: 12px;
+  height: 12px;
+  background: #60a5fa;
+  border-radius: 50%;
+  animation: pulse-grow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-grow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+}
+
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.event-item {
+  padding: 1rem;
+  background: rgba(30, 41, 59, 0.5);
+  border-left: 3px solid #60a5fa;
+  border-radius: 6px;
+  transition: all 0.2s;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.event-item:hover {
+  background: rgba(30, 41, 59, 0.7);
+}
+
+.event-item.event-task_received {
+  border-left-color: #60a5fa;
+}
+
+.event-item.event-plan_created {
+  border-left-color: #a78bfa;
+}
+
+.event-item.event-agent_dispatched {
+  border-left-color: #f59e0b;
+}
+
+.event-item.event-receipt_processed {
+  border-left-color: #10b981;
+}
+
+.event-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.event-icon {
+  font-size: 1rem;
+}
+
+.event-type {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex: 1;
+}
+
+.event-timestamp {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-family: 'Courier New', monospace;
+}
+
+.event-message {
+  font-size: 0.875rem;
+  color: #e0e6ed;
+  line-height: 1.5;
+}
+
+.event-details {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.event-details pre {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-family: 'Courier New', monospace;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
