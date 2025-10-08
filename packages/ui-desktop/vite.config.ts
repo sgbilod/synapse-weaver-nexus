@@ -21,8 +21,18 @@ export default defineConfig({
       },
       {
         entry: "src/preload.ts",
-        // Force the output filename to be .cjs
-        fileName: "preload.cjs",
+        // This is the corrected block. 'fileName' is now properly nested.
+        vite: {
+          build: {
+            outDir: "dist-electron",
+            lib: {
+              entry: "src/preload.ts",
+              formats: ["cjs"],
+              // Force the output filename to be .cjs
+              fileName: () => "preload.cjs",
+            },
+          },
+        },
         onstart(options) {
           // Notify the Renderer-Process to reload the page when the Preload-Scripts build is complete.
           options.reload();
