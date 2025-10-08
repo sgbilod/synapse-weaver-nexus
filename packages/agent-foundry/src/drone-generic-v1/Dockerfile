@@ -20,5 +20,8 @@ COPY agent.ts /agent/agent.ts
 # Install TypeScript globally for execution
 RUN npm install -g typescript ts-node
 
+# Create tsconfig.json for ts-node to use CommonJS (fixes export syntax error)
+RUN echo '{"compilerOptions":{"module":"commonjs","target":"ES2020","esModuleInterop":true,"skipLibCheck":true},"ts-node":{"transpileOnly":true,"compilerOptions":{"module":"commonjs"}}}' > /agent/tsconfig.json
+
 # Set up entrypoint
 ENTRYPOINT ["ts-node", "/agent/agent.ts"]

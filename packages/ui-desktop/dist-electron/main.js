@@ -173,10 +173,15 @@ ipcMain.handle("nexus:submit-task", async (_event, task) => {
     );
     console.log("[COMMAND DECK] Task successfully processed");
   } catch (error) {
-    console.error("[COMMAND DECK] Task processing failed:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : void 0;
+    console.error("[COMMAND DECK] Task processing failed:", errorMessage);
+    if (errorStack) {
+      console.error("[COMMAND DECK] Error stack:", errorStack);
+    }
     logSystemEvent(
       "RECEIPT_PROCESSED",
-      `Task processing failed: ${error instanceof Error ? error.message : String(error)}`,
+      `Task processing failed: ${errorMessage}`,
       { task, error }
     );
     throw error;

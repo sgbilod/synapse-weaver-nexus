@@ -129,28 +129,43 @@ export class OrchestrationEngine implements IOrchestrationEngine {
     try {
       // Step 1: Build the Docker image
       console.log(`[NEXUS-CORE] Building Docker image: ${imageName}...`);
-      const buildStream = await this.docker.buildImage(
-        {
-          context: dockerfilePath,
-          src: ["Dockerfile", "agent.ts"],
-        },
-        { t: imageName }
-      );
 
-      // Wait for build to complete
-      await new Promise<void>((resolve, reject) => {
-        this.docker.modem.followProgress(buildStream, (err, res) => {
-          if (err) reject(err);
-          else resolve();
+      try {
+        const buildStream = await this.docker.buildImage(
+          {
+            context: dockerfilePath,
+            src: ["Dockerfile", "agent.ts"],
+          },
+          { t: imageName }
+        );
+
+        // Wait for build to complete
+        await new Promise<void>((resolve, reject) => {
+          this.docker.modem.followProgress(buildStream, (err, res) => {
+            if (err) {
+              console.error(`[NEXUS-CORE] Docker build error:`, err);
+              reject(err);
+            } else {
+              resolve();
+            }
+          });
         });
-      });
-      console.log(`[NEXUS-CORE] Docker image built successfully.`);
-
+        console.log(`[NEXUS-CORE] Docker image built successfully.`);
+      } catch (buildError) {
+        console.error(`[NEXUS-CORE] Failed to build Docker image:`, buildError);
+        throw new Error(
+          `Docker build failed: ${buildError instanceof Error ? buildError.message : String(buildError)}`
+        );
+      }
       // Step 2: Create and start the container
       console.log(`[NEXUS-CORE] Creating container for ${agentName}...`);
       const container = await this.docker.createContainer({
         Image: imageName,
-        Cmd: [], // Jest entrypoint handles execution
+        Cmd: [], // Agent entrypoint handles execution
+        Env: [
+          `TASK_DESCRIPTION=${taskVector.naturalLanguageIntent}`,
+          `TASK_ID=${taskVector.id}`,
+        ],
         HostConfig: {
           Binds: [`${projectRootPath}:/project:ro`], // Mount project as read-only
           AutoRemove: false,
