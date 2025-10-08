@@ -50,6 +50,12 @@ export default defineConfig({
             },
             rollupOptions: {
               external: ["electron"],
+              output: {
+                // Force proper CommonJS output format
+                format: "cjs",
+                // Use require() instead of import for external modules
+                interop: "default",
+              },
             },
           },
         },
