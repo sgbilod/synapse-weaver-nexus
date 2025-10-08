@@ -177,13 +177,20 @@ function getNexusState(): NexusState {
 
   const agentCredibilityLedger = engineAny.agentCredibilityLedger || new Map();
 
+  // Convert Map<string, AgentCredibility> to Record<string, number>
+  // Extract just the score from each credibility object
+  const credibilityScores: Record<string, number> = {};
+  for (const [agentId, credibility] of agentCredibilityLedger.entries()) {
+    credibilityScores[agentId] = credibility.score;
+  }
+
   return {
     personalEnclave: {
       indentation: personalEnclave.indentation,
       quoteStyle: personalEnclave.quoteStyle,
       preferredLibraries: Array.from(personalEnclave.preferredLibraries),
     },
-    agentCredibilityLedger: Object.fromEntries(agentCredibilityLedger),
+    agentCredibilityLedger: credibilityScores,
     systemEvents: systemEvents,
   };
 }

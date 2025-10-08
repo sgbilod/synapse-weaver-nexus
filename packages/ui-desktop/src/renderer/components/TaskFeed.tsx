@@ -11,9 +11,15 @@ import "./TaskFeed.css";
 
 interface TaskFeedProps {
   events: SystemEvent[];
+  onEventSelect?: (event: SystemEvent) => void;
+  selectedEvent?: SystemEvent | null;
 }
 
-export const TaskFeed: React.FC<TaskFeedProps> = ({ events }) => {
+export const TaskFeed: React.FC<TaskFeedProps> = ({
+  events,
+  onEventSelect,
+  selectedEvent,
+}) => {
   const feedEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new events arrive
@@ -33,28 +39,43 @@ export const TaskFeed: React.FC<TaskFeedProps> = ({ events }) => {
           </div>
         ) : (
           <div className="event-list">
-            {events.map((event, index) => (
-              <div
-                key={`${event.timestamp}-${index}`}
-                className={`event-item event-${event.type.toLowerCase()}`}
-              >
-                <div className="event-header">
-                  <span className="event-icon">{getEventIcon(event.type)}</span>
-                  <span className="event-type">
-                    {formatEventType(event.type)}
-                  </span>
-                  <span className="event-timestamp">
-                    {formatTimestamp(event.timestamp)}
-                  </span>
-                </div>
-                <div className="event-message">{event.message}</div>
-                {event.details && (
-                  <div className="event-details">
-                    <pre>{JSON.stringify(event.details, null, 2)}</pre>
+            {events.map((event, index) => {
+              const isSelected =
+                selectedEvent?.timestamp === event.timestamp &&
+                selectedEvent?.type === event.type;
+              const isClickable =
+                event.type === "RECEIPT_PROCESSED" && onEventSelect;
+
+              return (
+                <div
+                  key={`${event.timestamp}-${index}`}
+                  className={`event-item event-${event.type.toLowerCase()} ${
+                    isSelected ? "selected" : ""
+                  } ${isClickable ? "clickable" : ""}`}
+                  onClick={() => isClickable && onEventSelect(event)}
+                  role={isClickable ? "button" : undefined}
+                  tabIndex={isClickable ? 0 : undefined}
+                >
+                  <div className="event-header">
+                    <span className="event-icon">
+                      {getEventIcon(event.type)}
+                    </span>
+                    <span className="event-type">
+                      {formatEventType(event.type)}
+                    </span>
+                    <span className="event-timestamp">
+                      {formatTimestamp(event.timestamp)}
+                    </span>
                   </div>
-                )}
-              </div>
-            ))}
+                  <div className="event-message">{event.message}</div>
+                  {event.details && (
+                    <div className="event-details">
+                      <pre>{JSON.stringify(event.details, null, 2)}</pre>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             <div ref={feedEndRef} />
           </div>
         )}

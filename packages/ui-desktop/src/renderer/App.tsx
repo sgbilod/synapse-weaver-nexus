@@ -10,7 +10,7 @@ import { StateMonitor } from "./components/StateMonitor";
 import { TaskFeed } from "./components/TaskFeed";
 import { DetailView } from "./components/DetailView";
 import { TaskInput } from "./components/TaskInput";
-import type { NexusState } from "../preload";
+import type { NexusState, SystemEvent } from "../preload";
 import "./App.css";
 
 export const App: React.FC = () => {
@@ -18,6 +18,7 @@ export const App: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [isProcessingTask, setIsProcessingTask] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<SystemEvent | null>(null);
 
   // Fetch initial state on mount
   useEffect(() => {
@@ -153,11 +154,15 @@ export const App: React.FC = () => {
           </section>
 
           <section className="panel panel-center">
-            <TaskFeed events={nexusState.systemEvents} />
+            <TaskFeed
+              events={nexusState.systemEvents}
+              onEventSelect={setSelectedEvent}
+              selectedEvent={selectedEvent}
+            />
           </section>
 
           <section className="panel panel-right">
-            <DetailView />
+            <DetailView selectedEvent={selectedEvent} />
           </section>
         </div>
       </main>
