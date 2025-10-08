@@ -337,7 +337,7 @@ function createWindow() {
     height: 900,
     backgroundColor: "#0a0e27",
     webPreferences: {
-      preload: path.join(__dirname, "preload.cjs"),
+      preload: path.join(__dirname, "preload.js"),
       // Use .cjs for CommonJS
       nodeIntegration: false,
       contextIsolation: true,
