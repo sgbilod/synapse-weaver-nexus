@@ -10,7 +10,6 @@ export default defineConfig({
       {
         // Main-Process entry file of the Electron App.
         entry: "src/main.ts",
-        // Here is the new configuration block
         vite: {
           build: {
             rollupOptions: {
@@ -22,6 +21,8 @@ export default defineConfig({
       },
       {
         entry: "src/preload.ts",
+        // Force the output filename to be .cjs
+        fileName: "preload.cjs",
         onstart(options) {
           // Notify the Renderer-Process to reload the page when the Preload-Scripts build is complete.
           options.reload();
