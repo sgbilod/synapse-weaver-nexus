@@ -1,0 +1,12 @@
+{
+  "name": "generic-llm-agent-v1",
+  "version": "1.0.0",
+  "description": "AI-powered coding agent using Google Gemini",
+  "main": "agent.ts",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0"
+  }
+}

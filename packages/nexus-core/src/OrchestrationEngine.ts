@@ -49,7 +49,7 @@ export class OrchestrationEngine implements IOrchestrationEngine {
 
   public createExecutionPlan(vector: TaskVector): ExecutionPlan {
     const planId = uuidv4();
-    let selectedAgentProfile = AGENT_PROFILES.DRONE_GENERIC_TASK;
+    let selectedAgentProfile = AGENT_PROFILES.GENERIC_LLM_V1; // Default to LLM agent
 
     switch (vector.parsedIntent.primaryAction) {
       case "TEST":
@@ -61,8 +61,13 @@ export class OrchestrationEngine implements IOrchestrationEngine {
       case "RESEARCH":
         selectedAgentProfile = AGENT_PROFILES.SCOUT_NPM_VULNERABILITY;
         break;
+      case "CREATE":
+      case "DEBUG":
+      case "DOCUMENT":
+        selectedAgentProfile = AGENT_PROFILES.GENERIC_LLM_V1; // Use LLM for creative tasks
+        break;
       default:
-        selectedAgentProfile = AGENT_PROFILES.DRONE_GENERIC_TASK;
+        selectedAgentProfile = AGENT_PROFILES.GENERIC_LLM_V1; // Default to LLM agent
         break;
     }
 
@@ -159,12 +164,22 @@ export class OrchestrationEngine implements IOrchestrationEngine {
       }
       // Step 2: Create and start the container
       console.log(`[NEXUS-CORE] Creating container for ${agentName}...`);
+
+      // Securely pass API keys from host environment
+      const geminiApiKey = process.env.GEMINI_API_KEY || "";
+      if (!geminiApiKey && agentName === "generic-llm-agent-v1") {
+        console.warn(
+          "[NEXUS-CORE] ⚠️  WARNING: GEMINI_API_KEY not found in environment. LLM agent will fail."
+        );
+      }
+
       const container = await this.docker.createContainer({
         Image: imageName,
         Cmd: [], // Agent entrypoint handles execution
         Env: [
           `TASK_DESCRIPTION=${taskVector.naturalLanguageIntent}`,
           `TASK_ID=${taskVector.id}`,
+          `GEMINI_API_KEY=${geminiApiKey}`, // Securely pass API key to container
         ],
         HostConfig: {
           Binds: [`${projectRootPath}:/project:ro`], // Mount project as read-only

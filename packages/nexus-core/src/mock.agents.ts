@@ -30,4 +30,16 @@ export const AGENT_PROFILES: Record<string, AgentProfile> = {
     costPerToken: 0.00005,
     costPerSecond: 0.03,
   },
+  GENERIC_LLM_V1: {
+    id: "generic-llm-agent-v1",
+    archetype: "Alchemist",
+    specializations: [
+      "AI Code Generation",
+      "LLM Integration",
+      "Natural Language Processing",
+      "Google Gemini",
+    ],
+    costPerToken: 0.0002,
+    costPerSecond: 0.1,
+  },
 };

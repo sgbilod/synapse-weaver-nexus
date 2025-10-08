@@ -51,10 +51,11 @@ describe("OrchestrationEngine v1", () => {
     expect(plan.swarm[0].agentProfile.archetype).toBe("Scout");
   });
 
-  test("should select a Drone agent for any other action", () => {
+  test("should select LLM agent for DOCUMENT and other creative actions", () => {
     const vector = createMockVector("DOCUMENT");
     const plan = engine.createExecutionPlan(vector);
-    expect(plan.swarm[0].agentProfile.archetype).toBe("Drone");
+    expect(plan.swarm[0].agentProfile.archetype).toBe("Alchemist");
+    expect(plan.swarm[0].agentProfile.id).toBe("generic-llm-agent-v1");
   });
 });
 

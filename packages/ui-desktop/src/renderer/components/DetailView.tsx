@@ -60,14 +60,12 @@ export const DetailView: React.FC<DetailViewProps> = ({ selectedEvent }) => {
         <div className="detail-placeholder">
           <div className="placeholder-icon">🔮</div>
           <h3>Select a Task</h3>
-          <p>Click on a completed task (✅ Receipt Processed) to view details</p>
+          <p>
+            Click on a completed task (✅ Receipt Processed) to view details
+          </p>
         </div>
       ) : code ? (
-        <CodeDisplay
-          code={code}
-          language="javascript"
-          title="Generated Code"
-        />
+        <CodeDisplay code={code} language="javascript" title="Generated Code" />
       ) : (
         <div className="detail-content">
           <div className="event-detail-header">
@@ -110,4 +108,3 @@ function getEventIcon(type: SystemEvent["type"]): string {
 function formatEventType(type: SystemEvent["type"]): string {
   return type.replace(/_/g, " ");
 }
-

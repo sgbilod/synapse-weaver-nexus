@@ -109,13 +109,17 @@ function getNexusState() {
     preferredLibraries: /* @__PURE__ */ new Set()
   };
   const agentCredibilityLedger = engineAny.agentCredibilityLedger || /* @__PURE__ */ new Map();
+  const credibilityScores = {};
+  for (const [agentId, credibility] of agentCredibilityLedger.entries()) {
+    credibilityScores[agentId] = credibility.score;
+  }
   return {
     personalEnclave: {
       indentation: personalEnclave.indentation,
       quoteStyle: personalEnclave.quoteStyle,
       preferredLibraries: Array.from(personalEnclave.preferredLibraries)
     },
-    agentCredibilityLedger: Object.fromEntries(agentCredibilityLedger),
+    agentCredibilityLedger: credibilityScores,
     systemEvents
   };
 }
