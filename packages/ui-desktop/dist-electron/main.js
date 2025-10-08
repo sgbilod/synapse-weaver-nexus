@@ -4,6 +4,10 @@ import { fileURLToPath } from "url";
 import { OrchestrationEngine } from "@synapse/nexus-core";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const WORKSPACE_ROOT = path.resolve(__dirname, "../../..");
+console.log("[COMMAND DECK] Workspace root:", WORKSPACE_ROOT);
+console.log("[COMMAND DECK] Current directory:", process.cwd());
+console.log("[COMMAND DECK] __dirname:", __dirname);
 let nexusEngine;
 let mainWindow = null;
 let systemEvents = [];
@@ -151,7 +155,8 @@ ipcMain.handle("nexus:submit-task", async (_event, task) => {
         requiredCredibility: 0.5
       }
     };
-    const projectRoot = process.cwd();
+    const projectRoot = WORKSPACE_ROOT;
+    console.log("[COMMAND DECK] Using project root for Docker:", projectRoot);
     logSystemEvent("PLAN_CREATED", `Creating execution plan for task...`, {
       taskId: taskVector.id
     });

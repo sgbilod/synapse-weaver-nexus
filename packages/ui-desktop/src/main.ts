@@ -15,6 +15,15 @@ import type { NexusState, SystemEvent } from "./preload";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Calculate workspace root from dist-electron location
+// __dirname = /workspace/packages/ui-desktop/dist-electron
+// workspace root = /workspace (go up 3 levels)
+const WORKSPACE_ROOT = path.resolve(__dirname, "../../..");
+
+console.log("[COMMAND DECK] Workspace root:", WORKSPACE_ROOT);
+console.log("[COMMAND DECK] Current directory:", process.cwd());
+console.log("[COMMAND DECK] __dirname:", __dirname);
+
 // The living instance of the Nexus Core
 let nexusEngine: OrchestrationEngine;
 let mainWindow: BrowserWindow | null = null;
@@ -229,8 +238,10 @@ ipcMain.handle("nexus:submit-task", async (_event, task: string) => {
       },
     };
 
-    // Use current directory as project root (for now)
-    const projectRoot = process.cwd();
+    // Use workspace root for Docker builds
+    const projectRoot = WORKSPACE_ROOT;
+
+    console.log("[COMMAND DECK] Using project root for Docker:", projectRoot);
 
     logSystemEvent("PLAN_CREATED", `Creating execution plan for task...`, {
       taskId: taskVector.id,

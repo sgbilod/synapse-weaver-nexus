@@ -111,7 +111,18 @@ export class OrchestrationEngine implements IOrchestrationEngine {
 
     const agentName = agentProfile.id.toLowerCase().replace(/\s+/g, "-");
     const imageName = `synapse-agent-${agentName}:latest`;
-    const dockerfilePath = `./packages/agent-foundry/src/${agentName}`;
+
+    // Use absolute path from project root
+    const path = await import("path");
+    const dockerfilePath = path.join(
+      projectRootPath,
+      "packages",
+      "agent-foundry",
+      "src",
+      agentName
+    );
+
+    console.log(`[NEXUS-CORE] Docker context path: ${dockerfilePath}`);
 
     const startTime = Date.now();
 
