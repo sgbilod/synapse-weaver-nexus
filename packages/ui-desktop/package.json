@@ -1,6 +1,7 @@
 {
   "name": "@synapse/ui-desktop",
   "version": "0.1.0",
+  "type": "module",
   "description": "Electron/React desktop experience for Synapse Weaver.",
   "main": "dist-electron/main.js",
   "types": "dist/main.d.ts",
@@ -12,10 +13,8 @@
     "e2e": "playwright test"
   },
   "devDependencies": {
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^5.0.4",
-    "electron": "^38.2.1",
+    "electron": "^30.0.0",
     "electron-builder": "^26.0.12",
     "typescript": "^5.4.0",
     "vite": "^7.1.9",
@@ -24,7 +23,9 @@
   },
   "dependencies": {
     "@synapse/nexus-core": "*",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "@types/react": "18.2.0",
+    "@types/react-dom": "18.2.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   }
 }

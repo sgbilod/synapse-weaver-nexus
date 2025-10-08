@@ -14,6 +14,11 @@ export default defineConfig({
         vite: {
           build: {
             outDir: "dist-electron",
+            lib: {
+              entry: "src/main.ts",
+              formats: ["es"],
+              fileName: () => "main.js",
+            },
             rollupOptions: {
               external: [
                 "electron",

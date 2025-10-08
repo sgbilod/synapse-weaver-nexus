@@ -7,8 +7,13 @@
 
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
+import { fileURLToPath } from "url";
 import { OrchestrationEngine } from "@synapse/nexus-core";
 import type { NexusState, SystemEvent } from "./preload";
+
+// ES module compatibility
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // The living instance of the Nexus Core
 let nexusEngine: OrchestrationEngine;

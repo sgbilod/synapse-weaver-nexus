@@ -17,6 +17,7 @@ export const App: React.FC = () => {
   const [nexusState, setNexusState] = useState<NexusState | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isProcessingTask, setIsProcessingTask] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch initial state on mount
   useEffect(() => {
@@ -25,12 +26,24 @@ export const App: React.FC = () => {
         console.log(
           "[COMMAND DECK] Requesting initial state from Nexus Core..."
         );
+
+        // Check if nexusApi is available
+        if (!window.nexusApi) {
+          throw new Error("nexusApi is not available on window object");
+        }
+
         const initialState = await window.nexusApi.getInitialState();
         setNexusState(initialState);
         setIsConnected(true);
         console.log("[COMMAND DECK] Initial state received:", initialState);
       } catch (error) {
-        console.error("[COMMAND DECK] Failed to get initial state:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        console.error(
+          "[COMMAND DECK] Failed to get initial state:",
+          errorMessage
+        );
+        setError(errorMessage);
         setIsConnected(false);
       }
     };
@@ -66,6 +79,42 @@ export const App: React.FC = () => {
     }
   };
 
+  // Error state
+  if (error) {
+    return (
+      <div className="app-loading" style={{ background: "#1a0a0a" }}>
+        <div
+          style={{
+            padding: "2rem",
+            background: "#ff000020",
+            border: "2px solid #ff0000",
+            borderRadius: "8px",
+            maxWidth: "600px",
+          }}
+        >
+          <h2 style={{ color: "#ff4444", marginBottom: "1rem" }}>
+            ⚠️ Error Loading Command Deck
+          </h2>
+          <p style={{ color: "#ffaaaa", marginBottom: "1rem" }}>{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              padding: "0.5rem 1rem",
+              background: "#ff4444",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Reload
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
   if (!isConnected || !nexusState) {
     return (
       <div className="app-loading">

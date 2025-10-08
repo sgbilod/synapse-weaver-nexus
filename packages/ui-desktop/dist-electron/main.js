@@ -1,13 +1,14 @@
-"use strict";
-Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-const electron = require("electron");
-const path = require("path");
-const nexusCore = require("@synapse/nexus-core");
-exports.nexusEngine = void 0;
+import { ipcMain, app, BrowserWindow } from "electron";
+import path from "path";
+import { fileURLToPath } from "url";
+import { OrchestrationEngine } from "@synapse/nexus-core";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+let nexusEngine;
 let mainWindow = null;
 let systemEvents = [];
 function createWindow() {
-  mainWindow = new electron.BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
     backgroundColor: "#0a0e27",
@@ -37,7 +38,7 @@ function createWindow() {
 }
 function initializeNexusCore() {
   console.log("[COMMAND DECK] Initializing Nexus Core...");
-  exports.nexusEngine = new nexusCore.OrchestrationEngine();
+  nexusEngine = new OrchestrationEngine();
   logSystemEvent("TASK_RECEIVED", "Nexus Core instantiated successfully");
   console.log("[COMMAND DECK] Nexus Core online. Personal En-gram active.");
 }
@@ -55,7 +56,7 @@ function logSystemEvent(type, message, details) {
   broadcastStateUpdate();
 }
 function getNexusState() {
-  if (!exports.nexusEngine) {
+  if (!nexusEngine) {
     return {
       personalEnclave: {
         indentation: "unknown",
@@ -66,7 +67,7 @@ function getNexusState() {
       systemEvents
     };
   }
-  const engineAny = exports.nexusEngine;
+  const engineAny = nexusEngine;
   const personalEnclave = engineAny.personalEnclave || {
     indentation: "unknown",
     quoteStyle: "unknown",
@@ -89,11 +90,11 @@ function broadcastStateUpdate() {
     mainWindow.webContents.send("nexus:state-updated", state);
   }
 }
-electron.ipcMain.handle("nexus:get-initial-state", async () => {
+ipcMain.handle("nexus:get-initial-state", async () => {
   console.log("[COMMAND DECK] Initial state requested");
   return getNexusState();
 });
-electron.ipcMain.handle("nexus:submit-task", async (_event, task) => {
+ipcMain.handle("nexus:submit-task", async (_event, task) => {
   console.log(`[COMMAND DECK] Task received: "${task}"`);
   logSystemEvent("TASK_RECEIVED", `Task submitted: ${task}`, { task });
   try {
@@ -123,7 +124,7 @@ electron.ipcMain.handle("nexus:submit-task", async (_event, task) => {
     logSystemEvent("PLAN_CREATED", `Creating execution plan for task...`, {
       taskId: taskVector.id
     });
-    const receipt = await exports.nexusEngine.receiveTask(taskVector, projectRoot);
+    const receipt = await nexusEngine.receiveTask(taskVector, projectRoot);
     logSystemEvent(
       "AGENT_DISPATCHED",
       `Execution plan ${receipt.planId} dispatched`,
@@ -145,19 +146,22 @@ electron.ipcMain.handle("nexus:submit-task", async (_event, task) => {
     throw error;
   }
 });
-electron.app.whenReady().then(() => {
+app.whenReady().then(() => {
   initializeNexusCore();
   createWindow();
-  electron.app.on("activate", () => {
-    if (electron.BrowserWindow.getAllWindows().length === 0) {
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
     }
   });
 });
-electron.app.on("window-all-closed", () => {
+app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
-    electron.app.quit();
+    app.quit();
   }
 });
-exports.getNexusState = getNexusState;
-exports.logSystemEvent = logSystemEvent;
+export {
+  getNexusState,
+  logSystemEvent,
+  nexusEngine
+};
