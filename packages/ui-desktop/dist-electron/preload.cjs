@@ -10,3 +10,14 @@ electron.contextBridge.exposeInMainWorld("nexusApi", {
     electron.ipcRenderer.removeAllListeners("nexus:state-updated");
   }
 });
+task", task),
+      onStateUpdate: (callback) => {
+        ipcRenderer.on("nexus:state-updated", (_event, state) => callback(state));
+      },
+      removeStateUpdateListener: () => {
+        ipcRenderer.removeAllListeners("nexus:state-updated");
+      }
+    });
+  }
+});
+export default require_preload();
