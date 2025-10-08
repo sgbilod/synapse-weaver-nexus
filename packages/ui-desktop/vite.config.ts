@@ -34,7 +34,7 @@ export default defineConfig({
         },
       },
       {
-        // Preload scripts
+        // Preload scripts - MUST be CommonJS for Electron
         entry: "src/preload.ts",
         onstart(options) {
           // Notify the Renderer-Process to reload the page when the Preload-Scripts build is complete
@@ -43,6 +43,11 @@ export default defineConfig({
         vite: {
           build: {
             outDir: "dist-electron",
+            lib: {
+              entry: "src/preload.ts",
+              formats: ["cjs"], // CommonJS required for preload
+              fileName: () => "preload.cjs", // .cjs extension to avoid ES module interpretation
+            },
             rollupOptions: {
               external: ["electron"],
             },

@@ -29,29 +29,75 @@ function createWindow() {
     height: 900,
     backgroundColor: "#0a0e27",
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "preload.cjs"), // Use .cjs for CommonJS
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: false,
     },
     title: "Synapse Weaver Nexus - Command Deck",
     icon: path.join(__dirname, "../assets/icon.png"),
-    show: false,
+    show: true, // Show immediately for debugging
   });
 
-  // Show window when ready to prevent visual flash
+  // Log when ready to show
   mainWindow.once("ready-to-show", () => {
-    mainWindow?.show();
+    console.log("[COMMAND DECK] Window ready-to-show event fired");
     logSystemEvent("TASK_RECEIVED", "Command Deck initialized and ready");
   });
 
+  // Log renderer process crashes
+  mainWindow.webContents.on("render-process-gone", (_event, details) => {
+    console.error("[COMMAND DECK] Renderer process gone!", details);
+  });
+
+  // Log when renderer becomes unresponsive
+  mainWindow.on("unresponsive", () => {
+    console.error("[COMMAND DECK] Window became unresponsive!");
+  });
+
+  // Log console messages from renderer
+  mainWindow.webContents.on(
+    "console-message",
+    (_event, level, message, line, sourceId) => {
+      const prefix =
+        level === 0
+          ? "[RENDERER LOG]"
+          : level === 1
+            ? "[RENDERER WARN]"
+            : level === 2
+              ? "[RENDERER ERROR]"
+              : "[RENDERER DEBUG]";
+      console.log(`${prefix} ${message} (${sourceId}:${line})`);
+    }
+  );
+
   // Load the renderer
   if (process.env.VITE_DEV_SERVER_URL) {
+    console.log("[COMMAND DECK] Loading URL:", process.env.VITE_DEV_SERVER_URL);
     mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
+    const htmlPath = path.join(__dirname, "../dist/index.html");
+    console.log("[COMMAND DECK] Loading file:", htmlPath);
+    mainWindow.loadFile(htmlPath);
   }
+
+  // Log when page finishes loading
+  mainWindow.webContents.on("did-finish-load", () => {
+    console.log("[COMMAND DECK] Page finished loading");
+  });
+
+  // Log navigation errors
+  mainWindow.webContents.on(
+    "did-fail-load",
+    (_event, errorCode, errorDescription) => {
+      console.error(
+        "[COMMAND DECK] Failed to load:",
+        errorCode,
+        errorDescription
+      );
+    }
+  );
 
   mainWindow.on("closed", () => {
     mainWindow = null;
