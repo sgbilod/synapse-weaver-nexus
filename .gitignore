@@ -63,4 +63,4 @@ Dockerfile.*.backup
 # Misc
 *.tgz
 .pnp*
-.pnpm-*
+.pnpm-*packages/ui-desktop/dist-electron/

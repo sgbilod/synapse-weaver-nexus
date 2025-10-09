@@ -2,7 +2,7 @@
 import * as vscode from "vscode";
 import { v4 as uuidv4 } from "uuid";
 import { parseIntent } from "./intentParser";
-import { OrchestrationEngine } from "../../nexus-core/src/OrchestrationEngine";
+import axios from "axios";
 
 // TaskVector type definition (copied from nexus-core for v1)
 interface TaskVector {
@@ -33,9 +33,6 @@ interface TaskVector {
   };
 }
 
-// Lazy initialization: Engine is only created when first needed
-let nexusEngine: OrchestrationEngine | null = null;
-
 /**
  * Activates the Synapse Bridge extension.
  * Registers the synapse-weaver.activate command.
@@ -46,46 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
   const disposable = vscode.commands.registerCommand(
     "synapse-weaver.activate",
     async () => {
-      try {
-        // Lazy initialization: Create engine only on first use
-        if (!nexusEngine) {
-          await vscode.window.withProgress(
-            {
-              location: vscode.ProgressLocation.Notification,
-              title: "Synapse Nexus Core is starting...",
-              cancellable: false,
-            },
-            async (progress) => {
-              progress.report({
-                increment: 0,
-                message: "Initializing Orchestration Engine...",
-              });
-              try {
-                nexusEngine = new OrchestrationEngine();
-                console.log(
-                  "[Synapse Bridge] Nexus Core instance created in-process."
-                );
-                progress.report({
-                  increment: 100,
-                  message: "Nexus Core Online.",
-                });
-                await new Promise((resolve) => setTimeout(resolve, 1500)); // Give user time to see the "Online" message
-              } catch (initError) {
-                // The error will be caught by the main try/catch block below
-                throw initError;
-              }
-            }
-          );
-        }
-
-        // Crucial check in case the engine failed to initialize
-        if (!nexusEngine) {
-          throw new Error(
-            "Nexus Engine failed to initialize. Please check logs."
-          );
-        }
-
-        // Get the active text editor
+      try {        // Get the active text editor
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
           vscode.window.showErrorMessage(
@@ -157,10 +115,14 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage(
           "Synapse Weaver: Sending directive to Nexus Core..."
         );
-        const executionReceipt = await nexusEngine.receiveTask(
-          taskVector,
-          projectRootPath
-        );
+
+        // Send task to the Nexus Server via HTTP
+        const response = await axios.post('http://localhost:3002/task', {
+          taskVector: taskVector,
+          projectRootPath: projectRootPath
+        });
+
+        const executionReceipt = response.data;
 
         // Log the execution result for debugging
         console.log("--- Synapse Bridge: Execution Receipt Received ---");

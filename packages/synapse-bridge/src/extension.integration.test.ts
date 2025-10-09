@@ -4,14 +4,13 @@ import * as vscode from "vscode";
 // Mock vscode module (loaded from __mocks__/vscode.js)
 jest.mock("vscode");
 
-// Mock the OrchestrationEngine BEFORE importing extension
-const mockReceiveTask = jest
-  .fn()
-  .mockImplementation((vector: any, projectRootPath: any) =>
-    Promise.resolve({
+// Mock axios for HTTP communication with Nexus Server
+const mockAxiosPost = jest.fn().mockImplementation((url: string, data: any) =>
+  Promise.resolve({
+    data: {
       receiptId: "test-receipt-123",
       planId: "test-plan-123",
-      taskId: vector.id,
+      taskId: data.taskVector.id,
       outcome: "COMPLETED",
       finalCost: 1.5,
       finalTimeSeconds: 30,
@@ -22,32 +21,28 @@ const mockReceiveTask = jest
           wasAccepted: true,
         },
       ],
-    })
-  );
+    },
+  })
+);
 
-const mockOrchestrationEngineConstructor = jest.fn().mockImplementation(() => ({
-  receiveTask: mockReceiveTask,
-}));
-
-jest.mock("../../nexus-core/src/OrchestrationEngine", () => ({
-  OrchestrationEngine: mockOrchestrationEngineConstructor,
+jest.mock("axios", () => ({
+  default: {
+    post: mockAxiosPost,
+  },
 }));
 
 // NOW import the extension after mocks are set up
 import { activate } from "./extension";
 
-describe("Extension Integration Tests - Resilience Protocol", () => {
+describe("Extension Integration Tests - Isolation Protocol", () => {
   let mockContext: vscode.ExtensionContext;
   let mockEditor: any;
 
   beforeEach(() => {
     // Reset all mocks but preserve mock implementations
     jest.clearAllMocks();
-    mockReceiveTask.mockClear();
-    mockOrchestrationEngineConstructor.mockClear();
+    mockAxiosPost.mockClear();
 
-    // CRITICAL: Clear the vscode.window mocks to reset withProgress call tracking
-    (vscode.window.withProgress as jest.Mock).mockClear();
     (vscode.window.showErrorMessage as jest.Mock).mockClear();
     (vscode.window.showInformationMessage as jest.Mock).mockClear();
 

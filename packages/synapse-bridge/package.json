@@ -35,9 +35,9 @@
     "lint": "eslint \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
-    "@synapse/nexus-core": "^0.1.0",
     "@types/glob": "^9.0.0",
     "@types/vscode": "^1.104.0",
+    "axios": "^1.7.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
