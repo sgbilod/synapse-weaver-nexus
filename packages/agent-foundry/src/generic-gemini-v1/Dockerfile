@@ -12,10 +12,10 @@ COPY agent.ts package.json* ./
 # Install dependencies
 # If package.json doesn't exist, create it and install @google/generative-ai
 RUN if [ -f package.json ]; then \
-      npm install; \
+    npm install; \
     else \
-      npm init -y && \
-      npm install @google/generative-ai typescript ts-node @types/node; \
+    npm init -y && \
+    npm install @google/generative-ai typescript ts-node @types/node; \
     fi
 
 # The agent expects:

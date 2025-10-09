@@ -60,18 +60,19 @@ export const StateMonitor: React.FC<StateMonitorProps> = ({
           <div className="agent-list">
             {agentEntries.map(([agentId, credibility]) => {
               // Default to 50% if credibility is NaN or invalid
-              const safeCredibility = isNaN(credibility) || credibility === null || credibility === undefined
-                ? 0.5
-                : credibility;
+              const safeCredibility =
+                isNaN(credibility) ||
+                credibility === null ||
+                credibility === undefined
+                  ? 0.5
+                  : credibility;
               const percentage = Math.round(safeCredibility * 100);
 
               return (
                 <div key={agentId} className="agent-item">
                   <div className="agent-info">
                     <span className="agent-id">{agentId}</span>
-                    <span className="agent-credibility">
-                      {percentage}%
-                    </span>
+                    <span className="agent-credibility">{percentage}%</span>
                   </div>
                   <div className="credibility-bar">
                     <div

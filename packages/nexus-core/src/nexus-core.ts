@@ -26,8 +26,9 @@ export interface IOrchestrationEngine {
   /**
    * Analyzes a TaskVector using the Economic Genesis Engine to produce
    * the most efficient execution plan. This considers cost, time, and quality.
+   * Now async to support AI-powered task decomposition.
    */
-  createExecutionPlan(vector: TaskVector): ExecutionPlan;
+  createExecutionPlan(vector: TaskVector): Promise<ExecutionPlan>;
 
   /**
    * Deploys and manages an agent swarm based on a given plan.

@@ -1,14 +1,14 @@
 #!/usr/bin/env ts-node
 /**
  * Generic Gemini V1 Agent
- * 
+ *
  * An intelligent agent powered by Google's Gemini API.
  * Accepts natural language prompts and generates code responses.
- * 
+ *
  * Environment Variables:
  *   GEMINI_API_KEY - Required API key for Google Generative AI
  *   TASK_DESCRIPTION - Task passed from orchestration engine (optional, can use argv)
- * 
+ *
  * Output Format:
  *   JSON object: { "code": "generated code here" }
  */
@@ -26,7 +26,8 @@ async function main(): Promise<void> {
     if (!apiKey || apiKey.trim() === "") {
       console.error(
         JSON.stringify({
-          error: "FATAL: GEMINI_API_KEY environment variable is not set or empty.",
+          error:
+            "FATAL: GEMINI_API_KEY environment variable is not set or empty.",
           code: "",
         })
       );
@@ -40,7 +41,8 @@ async function main(): Promise<void> {
     if (!taskDescription || taskDescription.trim() === "") {
       console.error(
         JSON.stringify({
-          error: "FATAL: No task description provided. Pass as command-line argument or TASK_DESCRIPTION env var.",
+          error:
+            "FATAL: No task description provided. Pass as command-line argument or TASK_DESCRIPTION env var.",
           code: "",
         })
       );
@@ -66,7 +68,7 @@ Return ONLY the code itself, without any markdown formatting, explanations, or s
 
     // Step 6: Clean the response (remove markdown code blocks if present)
     let cleanedCode = generatedCode.trim();
-    
+
     // Remove markdown code fences if present
     const codeBlockPattern = /^```[\w]*\n([\s\S]*)\n```$/;
     const match = cleanedCode.match(codeBlockPattern);
@@ -81,14 +83,12 @@ Return ONLY the code itself, without any markdown formatting, explanations, or s
 
     console.log(JSON.stringify(output));
     console.error(`[GEMINI-AGENT] Code generation completed successfully.`);
-
   } catch (error) {
     // Step 8: Handle errors gracefully
-    const errorMessage =
-      error instanceof Error ? error.message : String(error);
-    
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
     console.error(`[GEMINI-AGENT] ERROR: ${errorMessage}`);
-    
+
     // Still output valid JSON on error
     console.log(
       JSON.stringify({
@@ -96,7 +96,7 @@ Return ONLY the code itself, without any markdown formatting, explanations, or s
         code: "",
       })
     );
-    
+
     process.exit(1);
   }
 }
