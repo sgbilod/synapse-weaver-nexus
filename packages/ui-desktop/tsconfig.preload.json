@@ -7,6 +7,6 @@
     "noEmit": false,
     "composite": false
   },
-  "include": ["src/preload.ts"],
+  "include": ["src/preload.cts"],
   "exclude": ["src/renderer", "src/main.ts"]
 }

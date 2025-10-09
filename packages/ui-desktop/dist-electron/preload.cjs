@@ -18,4 +18,4 @@ electron_1.contextBridge.exposeInMainWorld("nexusApi", {
         electron_1.ipcRenderer.removeAllListeners("nexus:state-updated");
     },
 });
-//# sourceMappingURL=preload.js.map
+//# sourceMappingURL=preload.cjs.map
