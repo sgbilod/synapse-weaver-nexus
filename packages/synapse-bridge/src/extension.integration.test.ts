@@ -25,11 +25,14 @@ const mockAxiosPost = jest.fn().mockImplementation((url: string, data: any) =>
   })
 );
 
-jest.mock("axios", () => ({
-  default: {
-    post: mockAxiosPost,
-  },
-}));
+jest.mock("axios", () => {
+  return {
+    __esModule: true,
+    default: {
+      post: mockAxiosPost,
+    },
+  };
+});
 
 // NOW import the extension after mocks are set up
 import { activate } from "./extension";
@@ -81,15 +84,15 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
       expect(mockContext.subscriptions.length).toBe(1);
     });
 
-    it("should NOT create OrchestrationEngine instance on activation (lazy init)", () => {
+    it("should NOT make any HTTP calls on activation", () => {
       activate(mockContext);
 
-      // Engine should NOT be created during activation
-      expect(mockOrchestrationEngineConstructor).not.toHaveBeenCalled();
+      // No HTTP calls should be made during activation
+      expect(mockAxiosPost).not.toHaveBeenCalled();
     });
   });
 
-  describe("synapse-weaver.activate command execution - Lazy Initialization", () => {
+  describe("synapse-weaver.activate command execution", () => {
     let commandHandler: Function;
 
     beforeEach(() => {
@@ -108,11 +111,11 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
         ][1];
     });
 
-    it("should handle initialization errors gracefully and display detailed error message", async () => {
-      // Make constructor throw - this test MUST run first before engine is created
-      mockOrchestrationEngineConstructor.mockImplementationOnce(() => {
-        throw new Error("Docker daemon not running");
-      });
+    it("should handle server errors gracefully and display detailed error message", async () => {
+      // Make HTTP call fail
+      mockAxiosPost.mockRejectedValueOnce(
+        new Error("Server not running on port 3002")
+      );
 
       (vscode.window as any).activeTextEditor = mockEditor;
       (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
@@ -130,36 +133,29 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
       expect(errorMessage).toContain(
         "Synapse Weaver encountered a critical error"
       );
-      expect(errorMessage).toContain("Docker daemon not running");
+      expect(errorMessage).toContain("Server not running");
     });
 
-    it("should create OrchestrationEngine with progress UI on FIRST command, then reuse on SECOND", async () => {
+    it("should make HTTP POST request to task endpoint", async () => {
       (vscode.window as any).activeTextEditor = mockEditor;
       (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
         "test this code"
       );
 
-      // FIRST execution - should create engine with progress UI
+      // Execute command
       await commandHandler();
 
-      // Verify engine created
-      expect(mockOrchestrationEngineConstructor).toHaveBeenCalled();
-      const firstCallCount =
-        mockOrchestrationEngineConstructor.mock.calls.length;
-
-      // Verify progress UI was shown
-      expect(vscode.window.withProgress).toHaveBeenCalled();
-
-      // Clear mock history but keep the instance
-      mockOrchestrationEngineConstructor.mockClear();
-      (vscode.window.withProgress as jest.Mock).mockClear();
-
-      // SECOND execution - should reuse engine (no new creation, no progress UI)
-      await commandHandler();
-
-      expect(mockOrchestrationEngineConstructor).not.toHaveBeenCalled();
-      expect(vscode.window.withProgress).not.toHaveBeenCalled();
+      // Verify HTTP call was made
+      expect(mockAxiosPost).toHaveBeenCalledTimes(1);
+      expect(mockAxiosPost).toHaveBeenCalledWith(
+        "http://localhost:3002/task",
+        expect.objectContaining({
+          taskVector: expect.any(Object),
+          projectRootPath: expect.any(String),
+        })
+      );
     });
+
     it("should show error if no active editor", async () => {
       (vscode.window as any).activeTextEditor = undefined;
 
@@ -194,11 +190,11 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
 
       await commandHandler();
 
-      // receiveTask should not be called
-      expect(mockReceiveTask).not.toHaveBeenCalled();
+      // HTTP call should not be made
+      expect(mockAxiosPost).not.toHaveBeenCalled();
     });
 
-    it("should call receiveTask with properly structured TaskVector", async () => {
+    it("should send properly structured TaskVector to server", async () => {
       (vscode.window as any).activeTextEditor = mockEditor;
       (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
         "test this function"
@@ -206,10 +202,12 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
 
       await commandHandler();
 
-      expect(mockReceiveTask).toHaveBeenCalledTimes(1);
+      expect(mockAxiosPost).toHaveBeenCalledTimes(1);
 
-      // Check TaskVector structure
-      const taskVector = mockReceiveTask.mock.calls[0][0];
+      // Check request payload structure
+      const requestPayload = mockAxiosPost.mock.calls[0][1];
+      const taskVector = requestPayload.taskVector;
+      
       expect(taskVector).toMatchObject({
         id: expect.any(String),
         timestamp: expect.any(Number),
@@ -233,7 +231,7 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
       });
 
       // Check projectRootPath
-      const projectRootPath = mockReceiveTask.mock.calls[0][1];
+      const projectRootPath = requestPayload.projectRootPath;
       expect(typeof projectRootPath).toBe("string");
       expect(projectRootPath).toBe("/test/workspace");
     });
@@ -255,7 +253,7 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
     });
 
     it("should handle task execution errors gracefully", async () => {
-      mockReceiveTask.mockRejectedValue(
+      mockAxiosPost.mockRejectedValueOnce(
         new Error("Task execution failed - insufficient resources")
       );
 
