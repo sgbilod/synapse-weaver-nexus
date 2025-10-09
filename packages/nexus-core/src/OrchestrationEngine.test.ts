@@ -18,6 +18,22 @@ class TestableOrchestrationEngine extends OrchestrationEngine {
 
 describe("OrchestrationEngine v1", () => {
   let engine: OrchestrationEngine;
+  let originalApiKey: string | undefined;
+
+  beforeAll(() => {
+    // Save original API key
+    originalApiKey = process.env.GEMINI_API_KEY;
+    // Remove API key to disable decomposition for most tests
+    // This prevents unexpected network calls and rate limiting
+    delete process.env.GEMINI_API_KEY;
+  });
+
+  afterAll(() => {
+    // Restore original API key
+    if (originalApiKey) {
+      process.env.GEMINI_API_KEY = originalApiKey;
+    }
+  });
 
   beforeEach(() => {
     engine = new OrchestrationEngine();
