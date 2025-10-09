@@ -5,6 +5,7 @@ import {
   ExecutionReceipt,
   ExecutionPlan,
 } from "./cognitive.types.js";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 /**
  * Test Helper Class - Exposes protected methods for testing
@@ -24,27 +25,40 @@ describe("OrchestrationEngine v1", () => {
 
   const createMockVector = (
     action: TaskVector["parsedIntent"]["primaryAction"]
-  ): TaskVector => ({
-    id: "mock-task-id",
-    timestamp: Date.now(),
-    sourceCode: "const x = 1;",
-    naturalLanguageIntent: "do the thing",
-    parsedIntent: {
-      primaryAction: action,
-      subject: "the thing",
-      context: [],
-    },
-    projectContext: {
-      projectId: "mock-project",
-      filePath: "/mock/file.ts",
-      projectStyleGuide: {},
-    },
-    constraints: {
-      maxBudget: 1,
-      maxTimeSeconds: 60,
-      requiredCredibility: 0.5,
-    },
-  });
+  ): TaskVector => {
+    // Create naturalLanguageIntent that matches the primaryAction
+    // to ensure AI decomposition doesn't change the intent
+    const intentMap: Record<string, string> = {
+      TEST: "write tests for this code",
+      REFACTOR: "refactor this code to improve quality",
+      RESEARCH: "research and find information about this",
+      CREATE: "create new code for this feature",
+      DEBUG: "debug and fix errors in this code",
+      DOCUMENT: "document this code with comments",
+    };
+
+    return {
+      id: "mock-task-id",
+      timestamp: Date.now(),
+      sourceCode: "const x = 1;",
+      naturalLanguageIntent: intentMap[action] || "do the thing",
+      parsedIntent: {
+        primaryAction: action,
+        subject: "the thing",
+        context: [],
+      },
+      projectContext: {
+        projectId: "mock-project",
+        filePath: "/mock/file.ts",
+        projectStyleGuide: {},
+      },
+      constraints: {
+        maxBudget: 1,
+        maxTimeSeconds: 60,
+        requiredCredibility: 0.5,
+      },
+    };
+  };
 
   test("should select a Sentinel agent for a TEST action", async () => {
     const vector = createMockVector("TEST");
@@ -492,32 +506,45 @@ describe("Epic 6: Swarm Intelligence - Task Decomposition & Multi-Stage Executio
 3. Write unit tests for calculateSum
 4. Document the function with JSDoc comments`;
 
-      // Mock the Gemini client
+      // Mock the Gemini SDK to prevent real network calls
+      const mockGenerateContent = jest.fn().mockResolvedValue({
+        response: {
+          text: () => mockGeminiResponse,
+        },
+      });
+
+      const mockGetGenerativeModel = jest.fn().mockReturnValue({
+        generateContent: mockGenerateContent,
+      });
+
+      jest
+        .spyOn(GoogleGenerativeAI.prototype, "getGenerativeModel")
+        .mockImplementation(mockGetGenerativeModel);
+
+      // Set a mock API key (prevents early return in decomposeTask)
       const originalEnv = process.env.GEMINI_API_KEY;
       process.env.GEMINI_API_KEY = "mock-key-for-testing";
 
-      // Since we can't easily mock the Gemini SDK without dependency injection,
-      // we'll test the parsing logic directly by calling with a mock
-      const subTasks = await engine
-        .testDecomposeTask(
-          "Create a calculateSum function with tests and documentation"
-        )
-        .catch(() => {
-          // If Gemini fails (no real API key), return mock subtasks for testing
-          return [
-            "Create a new TypeScript function called calculateSum",
-            "Add parameter validation for the function",
-            "Write unit tests for calculateSum",
-            "Document the function with JSDoc comments",
-          ];
-        });
+      // Call the decomposition logic with the mocked Gemini client
+      const subTasks = await engine.testDecomposeTask(
+        "Create a calculateSum function with tests and documentation"
+      );
 
+      // Verify the mocked API was called
+      expect(mockGetGenerativeModel).toHaveBeenCalled();
+      expect(mockGenerateContent).toHaveBeenCalled();
+
+      // Verify the parsing logic correctly extracted 4 tasks
       expect(subTasks).toHaveLength(4);
       expect(subTasks[0]).toContain("calculateSum");
       expect(subTasks[2]).toContain("tests");
       expect(subTasks[3]).toContain("Document");
 
+      // Restore environment
       process.env.GEMINI_API_KEY = originalEnv;
+
+      // Restore the mock
+      jest.restoreAllMocks();
     });
 
     test("should handle Gemini API failures gracefully", async () => {
