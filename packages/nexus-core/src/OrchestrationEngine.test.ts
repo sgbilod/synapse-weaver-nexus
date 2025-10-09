@@ -104,6 +104,20 @@ describe("OrchestrationEngine v1", () => {
 
 describe("Agent Credibility Engine", () => {
   let engine: OrchestrationEngine;
+  let originalApiKey: string | undefined;
+
+  beforeAll(() => {
+    // Save original API key and remove it to prevent real API calls
+    originalApiKey = process.env.GEMINI_API_KEY;
+    delete process.env.GEMINI_API_KEY;
+  });
+
+  afterAll(() => {
+    // Restore original API key
+    if (originalApiKey) {
+      process.env.GEMINI_API_KEY = originalApiKey;
+    }
+  });
 
   beforeEach(() => {
     engine = new OrchestrationEngine();
@@ -224,6 +238,20 @@ describe("Agent Credibility Engine", () => {
 
 describe("Personal En-gram System", () => {
   let engine: OrchestrationEngine;
+  let originalApiKey: string | undefined;
+
+  beforeAll(() => {
+    // Save original API key and remove it to prevent real API calls
+    originalApiKey = process.env.GEMINI_API_KEY;
+    delete process.env.GEMINI_API_KEY;
+  });
+
+  afterAll(() => {
+    // Restore original API key
+    if (originalApiKey) {
+      process.env.GEMINI_API_KEY = originalApiKey;
+    }
+  });
 
   beforeEach(() => {
     engine = new OrchestrationEngine();
@@ -480,6 +508,20 @@ const greeting = "hello world";`;
  */
 describe("Epic 6: Swarm Intelligence - Task Decomposition & Multi-Stage Execution", () => {
   let engine: TestableOrchestrationEngine;
+  let originalApiKey: string | undefined;
+
+  beforeAll(() => {
+    // Save original API key and remove it to prevent real API calls
+    originalApiKey = process.env.GEMINI_API_KEY;
+    delete process.env.GEMINI_API_KEY;
+  });
+
+  afterAll(() => {
+    // Restore original API key
+    if (originalApiKey) {
+      process.env.GEMINI_API_KEY = originalApiKey;
+    }
+  });
 
   beforeEach(() => {
     engine = new TestableOrchestrationEngine();
