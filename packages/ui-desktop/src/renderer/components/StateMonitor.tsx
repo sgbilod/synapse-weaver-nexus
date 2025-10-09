@@ -58,25 +58,33 @@ export const StateMonitor: React.FC<StateMonitorProps> = ({
           <p className="empty-state">No agents tracked yet</p>
         ) : (
           <div className="agent-list">
-            {agentEntries.map(([agentId, credibility]) => (
-              <div key={agentId} className="agent-item">
-                <div className="agent-info">
-                  <span className="agent-id">{agentId}</span>
-                  <span className="agent-credibility">
-                    {(credibility * 100).toFixed(0)}%
-                  </span>
+            {agentEntries.map(([agentId, credibility]) => {
+              // Default to 50% if credibility is NaN or invalid
+              const safeCredibility = isNaN(credibility) || credibility === null || credibility === undefined
+                ? 0.5
+                : credibility;
+              const percentage = Math.round(safeCredibility * 100);
+
+              return (
+                <div key={agentId} className="agent-item">
+                  <div className="agent-info">
+                    <span className="agent-id">{agentId}</span>
+                    <span className="agent-credibility">
+                      {percentage}%
+                    </span>
+                  </div>
+                  <div className="credibility-bar">
+                    <div
+                      className="credibility-fill"
+                      style={{
+                        width: `${percentage}%`,
+                        background: getCredibilityColor(safeCredibility),
+                      }}
+                    />
+                  </div>
                 </div>
-                <div className="credibility-bar">
-                  <div
-                    className="credibility-fill"
-                    style={{
-                      width: `${credibility * 100}%`,
-                      background: getCredibilityColor(credibility),
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>

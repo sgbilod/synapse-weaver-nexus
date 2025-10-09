@@ -7,7 +7,7 @@
 
 import React from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import "./CodeDisplay.css";
 
 interface CodeDisplayProps {
@@ -27,7 +27,7 @@ export const CodeDisplay: React.FC<CodeDisplayProps> = ({
       <div className="code-display-content">
         <SyntaxHighlighter
           language={language}
-          style={vscDarkPlus}
+          style={atomDark}
           customStyle={{
             margin: 0,
             padding: "1rem",
