@@ -13,17 +13,42 @@ import {
 import { AGENT_PROFILES } from "./mock.agents.js";
 
 // Simple intent parser for sub-task classification
-function parseIntentLocal(intent: string): "CREATE" | "TEST" | "REFACTOR" | "DEBUG" | "DOCUMENT" | "RESEARCH" {
+function parseIntentLocal(
+  intent: string
+): "CREATE" | "TEST" | "REFACTOR" | "DEBUG" | "DOCUMENT" | "RESEARCH" {
   const lower = intent.toLowerCase();
-  if (lower.includes("test") || lower.includes("validate") || lower.includes("verify")) {
+  if (
+    lower.includes("test") ||
+    lower.includes("validate") ||
+    lower.includes("verify")
+  ) {
     return "TEST";
-  } else if (lower.includes("refactor") || lower.includes("clean") || lower.includes("improve") || lower.includes("optimize")) {
+  } else if (
+    lower.includes("refactor") ||
+    lower.includes("clean") ||
+    lower.includes("improve") ||
+    lower.includes("optimize")
+  ) {
     return "REFACTOR";
-  } else if (lower.includes("research") || lower.includes("find") || lower.includes("look up") || lower.includes("is there a better")) {
+  } else if (
+    lower.includes("research") ||
+    lower.includes("find") ||
+    lower.includes("look up") ||
+    lower.includes("is there a better")
+  ) {
     return "RESEARCH";
-  } else if (lower.includes("debug") || lower.includes("fix") || lower.includes("solve") || lower.includes("error")) {
+  } else if (
+    lower.includes("debug") ||
+    lower.includes("fix") ||
+    lower.includes("solve") ||
+    lower.includes("error")
+  ) {
     return "DEBUG";
-  } else if (lower.includes("document") || lower.includes("comment") || lower.includes("explain")) {
+  } else if (
+    lower.includes("document") ||
+    lower.includes("comment") ||
+    lower.includes("explain")
+  ) {
     return "DOCUMENT";
   }
   return "CREATE";
@@ -46,10 +71,10 @@ export class OrchestrationEngine implements IOrchestrationEngine {
 
   /**
    * Task Decomposer - The Strategic Mind
-   * 
+   *
    * Uses Gemini LLM to decompose a high-level user intent into a sequence of smaller,
    * actionable sub-tasks. This enables multi-stage execution plans.
-   * 
+   *
    * @param userIntent - The natural language description of what the user wants
    * @returns Array of sub-task strings. Returns empty array on failure or single-element array for simple tasks.
    */
@@ -80,9 +105,7 @@ export class OrchestrationEngine implements IOrchestrationEngine {
       const response = await result.response;
       const decompositionText = response.text();
 
-      console.log(
-        `[NEXUS-CORE] Decomposition response:\n${decompositionText}`
-      );
+      console.log(`[NEXUS-CORE] Decomposition response:\n${decompositionText}`);
 
       // Parse the numbered list response
       const lines = decompositionText.split("\n");
@@ -141,7 +164,7 @@ export class OrchestrationEngine implements IOrchestrationEngine {
 
   /**
    * Strategic Genesis Engine - Now with Multi-Stage Intelligence
-   * 
+   *
    * Analyzes the task vector and generates an execution plan.
    * Uses the Task Decomposer to break down complex requests into sequential stages.
    */
@@ -152,18 +175,19 @@ export class OrchestrationEngine implements IOrchestrationEngine {
     const subTasks = await this.decomposeTask(vector.naturalLanguageIntent);
 
     // Step 2: Determine plan type based on decomposition results
-    const planType: 'simple' | 'sequential' = subTasks.length <= 1 ? 'simple' : 'sequential';
+    const planType: "simple" | "sequential" =
+      subTasks.length <= 1 ? "simple" : "sequential";
 
     console.log(
       `[NEXUS-CORE] Plan type: ${planType} (${subTasks.length} sub-task(s))`
     );
 
     // Step 3: Build stages
-    const stages: ExecutionPlan['stages'] = [];
+    const stages: ExecutionPlan["stages"] = [];
     let totalEstimatedBudget = 0;
     let totalEstimatedTime = 0;
 
-    if (planType === 'simple') {
+    if (planType === "simple") {
       // Simple plan: single stage with one agent
       let selectedAgentProfile = AGENT_PROFILES.GENERIC_GEMINI_V1;
 
@@ -187,7 +211,9 @@ export class OrchestrationEngine implements IOrchestrationEngine {
           break;
       }
 
-      const styleAwareIntent = this.applyStyleGuidance(vector.naturalLanguageIntent);
+      const styleAwareIntent = this.applyStyleGuidance(
+        vector.naturalLanguageIntent
+      );
 
       stages.push([
         {
@@ -254,7 +280,7 @@ export class OrchestrationEngine implements IOrchestrationEngine {
 
   /**
    * Sequential Swarm Dispatcher - Multi-Stage Execution Engine
-   * 
+   *
    * Executes each stage of the plan in sequence, accumulating results.
    * Only proceeds to next stage if current stage succeeds.
    */
@@ -267,7 +293,7 @@ export class OrchestrationEngine implements IOrchestrationEngine {
     );
 
     const overallStartTime = Date.now();
-    const allResults: ExecutionReceipt['results'] = [];
+    const allResults: ExecutionReceipt["results"] = [];
     let totalCost = 0;
     let currentStageIndex = 0;
 
@@ -350,7 +376,8 @@ export class OrchestrationEngine implements IOrchestrationEngine {
         finalTimeSeconds,
         results: allResults,
         failureAnalysis: {
-          failedAgentId: allResults[allResults.length - 1]?.agentId || "unknown",
+          failedAgentId:
+            allResults[allResults.length - 1]?.agentId || "unknown",
           reason: `Swarm execution error: ${error instanceof Error ? error.message : String(error)}`,
           logs: error instanceof Error ? error.stack || "" : String(error),
         },
@@ -360,7 +387,7 @@ export class OrchestrationEngine implements IOrchestrationEngine {
 
   /**
    * Execute Single Agent - The Worker Bee
-   * 
+   *
    * Builds, runs, and collects output from a single containerized agent.
    */
   private async executeAgent(
@@ -400,7 +427,9 @@ export class OrchestrationEngine implements IOrchestrationEngine {
       agentName
     );
 
-    console.log(`[NEXUS-CORE] Agent: ${agentProfile.id}, Docker context: ${dockerfilePath}`);
+    console.log(
+      `[NEXUS-CORE] Agent: ${agentProfile.id}, Docker context: ${dockerfilePath}`
+    );
 
     const startTime = Date.now();
 

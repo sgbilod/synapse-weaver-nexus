@@ -66,11 +66,13 @@ export interface ExecutionPlan {
   taskId: string;
   taskVector: TaskVector; // Reference to original task for agent execution context
   // An array of stages. Each stage is an array of agent tasks that can be run in parallel.
-  stages: Array<Array<{
-    agentProfile: AgentProfile;
-    taskChunk: string; // The specific sub-task for this agent
-  }>>;
-  planType: 'simple' | 'sequential'; // For now, we will only implement sequential plans.
+  stages: Array<
+    Array<{
+      agentProfile: AgentProfile;
+      taskChunk: string; // The specific sub-task for this agent
+    }>
+  >;
+  planType: "simple" | "sequential"; // For now, we will only implement sequential plans.
   estimatedBudget: number;
   estimatedTimeSeconds: number;
 }

@@ -1,6 +1,10 @@
 // packages/nexus-core/src/OrchestrationEngine.test.ts
 import { OrchestrationEngine } from "./OrchestrationEngine.js";
-import { TaskVector, ExecutionReceipt, ExecutionPlan } from "./cognitive.types.js";
+import {
+  TaskVector,
+  ExecutionReceipt,
+  ExecutionPlan,
+} from "./cognitive.types.js";
 
 /**
  * Test Helper Class - Exposes protected methods for testing
@@ -179,10 +183,12 @@ describe("Agent Credibility Engine", () => {
 
     // dispatchSwarm should return failed receipt due to insufficient credibility
     const receipt = await engine.dispatchSwarm(plan, "/mock/project/path");
-    
+
     expect(receipt.outcome).toBe("FAILED");
     expect(receipt.failureAnalysis).toBeDefined();
-    expect(receipt.failureAnalysis?.reason).toContain("insufficient credibility");
+    expect(receipt.failureAnalysis?.reason).toContain(
+      "insufficient credibility"
+    );
   });
 });
 
@@ -316,7 +322,9 @@ const greeting = 'hello world';`;
     };
 
     const plan = await engine.createExecutionPlan(vector);
-    expect(plan.stages[0][0].taskChunk).toContain("Use single quotes for strings");
+    expect(plan.stages[0][0].taskChunk).toContain(
+      "Use single quotes for strings"
+    );
   });
 
   test("should detect and store double quote style", async () => {
@@ -350,7 +358,9 @@ const greeting = "hello world";`;
     };
 
     const plan = await engine.createExecutionPlan(vector);
-    expect(plan.stages[0][0].taskChunk).toContain("Use double quotes for strings");
+    expect(plan.stages[0][0].taskChunk).toContain(
+      "Use double quotes for strings"
+    );
   });
 
   test("should apply combined style guidance from learned patterns", async () => {
@@ -391,8 +401,12 @@ const greeting = "hello world";`;
 
     // Should contain both guidance elements
     expect(plan.stages[0][0].taskChunk).toContain("Use spaces for indentation");
-    expect(plan.stages[0][0].taskChunk).toContain("Use double quotes for strings");
-    expect(plan.stages[0][0].taskChunk).toContain("Follow this style guidance:");
+    expect(plan.stages[0][0].taskChunk).toContain(
+      "Use double quotes for strings"
+    );
+    expect(plan.stages[0][0].taskChunk).toContain(
+      "Follow this style guidance:"
+    );
   });
 
   test("should not apply guidance when no patterns learned", async () => {
@@ -423,13 +437,15 @@ const greeting = "hello world";`;
 
     // Should be unchanged
     expect(plan.stages[0][0].taskChunk).toBe("create something");
-    expect(plan.stages[0][0].taskChunk).not.toContain("Follow this style guidance");
+    expect(plan.stages[0][0].taskChunk).not.toContain(
+      "Follow this style guidance"
+    );
   });
 });
 
 /**
  * 🧠 EPIC 6: THE SENTIENT SWARM - Multi-Stage Execution Test Suite
- * 
+ *
  * Tests the AI-powered task decomposition and sequential agent orchestration.
  */
 describe("Epic 6: Swarm Intelligence - Task Decomposition & Multi-Stage Execution", () => {
@@ -463,7 +479,7 @@ describe("Epic 6: Swarm Intelligence - Task Decomposition & Multi-Stage Executio
 
   /**
    * Test 1: decomposeTask Method
-   * 
+   *
    * Verifies that the AI decomposer correctly parses numbered lists from Gemini.
    */
   describe("decomposeTask - AI-Powered Task Decomposition", () => {
@@ -482,17 +498,19 @@ describe("Epic 6: Swarm Intelligence - Task Decomposition & Multi-Stage Executio
 
       // Since we can't easily mock the Gemini SDK without dependency injection,
       // we'll test the parsing logic directly by calling with a mock
-      const subTasks = await engine.testDecomposeTask(
-        "Create a calculateSum function with tests and documentation"
-      ).catch(() => {
-        // If Gemini fails (no real API key), return mock subtasks for testing
-        return [
-          "Create a new TypeScript function called calculateSum",
-          "Add parameter validation for the function",
-          "Write unit tests for calculateSum",
-          "Document the function with JSDoc comments",
-        ];
-      });
+      const subTasks = await engine
+        .testDecomposeTask(
+          "Create a calculateSum function with tests and documentation"
+        )
+        .catch(() => {
+          // If Gemini fails (no real API key), return mock subtasks for testing
+          return [
+            "Create a new TypeScript function called calculateSum",
+            "Add parameter validation for the function",
+            "Write unit tests for calculateSum",
+            "Document the function with JSDoc comments",
+          ];
+        });
 
       expect(subTasks).toHaveLength(4);
       expect(subTasks[0]).toContain("calculateSum");
@@ -507,12 +525,12 @@ describe("Epic 6: Swarm Intelligence - Task Decomposition & Multi-Stage Executio
       const originalKey = process.env.GEMINI_API_KEY;
       delete process.env.GEMINI_API_KEY;
 
-      const subTasks = await engine.testDecomposeTask(
-        "Create something complex"
-      ).catch((error) => {
-        expect(error.message).toContain("GEMINI_API_KEY");
-        return []; // Return empty array as fallback
-      });
+      const subTasks = await engine
+        .testDecomposeTask("Create something complex")
+        .catch((error) => {
+          expect(error.message).toContain("GEMINI_API_KEY");
+          return []; // Return empty array as fallback
+        });
 
       // Should handle failure without crashing
       expect(Array.isArray(subTasks)).toBe(true);
@@ -534,7 +552,9 @@ describe("Epic 6: Swarm Intelligence - Task Decomposition & Multi-Stage Executio
       for (const format of testCases) {
         const result = await engine.testDecomposeTask("test").catch(() => {
           // Mock parsing of the format
-          return format.split("\n").map((line) => line.replace(/^\d+[.)]\s*-?\s*/, ""));
+          return format
+            .split("\n")
+            .map((line) => line.replace(/^\d+[.)]\s*-?\s*/, ""));
         });
 
         expect(result.length).toBeGreaterThanOrEqual(1);
@@ -546,7 +566,7 @@ describe("Epic 6: Swarm Intelligence - Task Decomposition & Multi-Stage Executio
 
   /**
    * Test 2: createExecutionPlan Multi-Stage Generation
-   * 
+   *
    * Verifies that complex prompts generate sequential multi-stage plans.
    */
   describe("createExecutionPlan - Strategic Multi-Stage Planning", () => {
@@ -566,16 +586,18 @@ describe("Epic 6: Swarm Intelligence - Task Decomposition & Multi-Stage Executio
           taskId: vector.id,
           taskVector: vector,
           planType: "simple" as const,
-          stages: [[
-            {
-              agentProfile: {
-                id: "generic-gemini-v1",
-                archetype: "Alchemist",
-                costPerSecond: 0.001,
+          stages: [
+            [
+              {
+                agentProfile: {
+                  id: "generic-gemini-v1",
+                  archetype: "Alchemist",
+                  costPerSecond: 0.001,
+                },
+                taskChunk: vector.naturalLanguageIntent,
               },
-              taskChunk: vector.naturalLanguageIntent,
-            },
-          ]],
+            ],
+          ],
         };
       });
 
@@ -671,9 +693,9 @@ describe("Epic 6: Swarm Intelligence - Task Decomposition & Multi-Stage Executio
 
   /**
    * Test 3: dispatchSwarm Sequential Execution
-   * 
+   *
    * Verifies that stages execute in order and failures halt execution.
-   * 
+   *
    * NOTE: Mocking Docker is complex, so we test the logic flow rather than
    * full integration. Integration tests would require Docker environment.
    */
@@ -805,7 +827,7 @@ describe("Epic 6: Swarm Intelligence - Task Decomposition & Multi-Stage Executio
 
   /**
    * Test 4: Integration - End-to-End Multi-Stage Flow
-   * 
+   *
    * Verifies complete flow from task receipt to plan generation.
    */
   describe("Integration: receiveTask → createExecutionPlan → Multi-Stage", () => {
