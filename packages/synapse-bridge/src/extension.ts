@@ -43,7 +43,8 @@ export function activate(context: vscode.ExtensionContext) {
   const disposable = vscode.commands.registerCommand(
     "synapse-weaver.activate",
     async () => {
-      try {        // Get the active text editor
+      try {
+        // Get the active text editor
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
           vscode.window.showErrorMessage(
@@ -117,9 +118,9 @@ export function activate(context: vscode.ExtensionContext) {
         );
 
         // Send task to the Nexus Server via HTTP
-        const response = await axios.post('http://localhost:3002/task', {
+        const response = await axios.post("http://localhost:3002/task", {
           taskVector: taskVector,
-          projectRootPath: projectRootPath
+          projectRootPath: projectRootPath,
         });
 
         const executionReceipt = response.data;
