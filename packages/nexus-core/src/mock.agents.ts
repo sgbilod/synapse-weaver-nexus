@@ -42,4 +42,16 @@ export const AGENT_PROFILES: Record<string, AgentProfile> = {
     costPerToken: 0.0002,
     costPerSecond: 0.1,
   },
+  GENERIC_GEMINI_V1: {
+    id: "generic-gemini-v1",
+    archetype: "Alchemist",
+    specializations: [
+      "AI Code Generation",
+      "Google Gemini API",
+      "Natural Language Processing",
+      "Intelligent Code Synthesis",
+    ],
+    costPerToken: 0.00015,
+    costPerSecond: 0.08,
+  },
 };

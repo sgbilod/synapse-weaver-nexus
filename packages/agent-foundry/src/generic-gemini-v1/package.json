@@ -1,0 +1,15 @@
+{
+  "name": "generic-gemini-v1-agent",
+  "version": "1.0.0",
+  "description": "Gemini-powered intelligent code generation agent",
+  "main": "agent.ts",
+  "scripts": {
+    "start": "ts-node agent.ts"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "@types/node": "^20.0.0"
+  }
+}

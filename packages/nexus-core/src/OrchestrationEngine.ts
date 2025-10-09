@@ -49,7 +49,7 @@ export class OrchestrationEngine implements IOrchestrationEngine {
 
   public createExecutionPlan(vector: TaskVector): ExecutionPlan {
     const planId = uuidv4();
-    let selectedAgentProfile = AGENT_PROFILES.GENERIC_LLM_V1; // Default to LLM agent
+    let selectedAgentProfile = AGENT_PROFILES.GENERIC_GEMINI_V1; // Default to Gemini agent
 
     switch (vector.parsedIntent.primaryAction) {
       case "TEST":
@@ -64,10 +64,10 @@ export class OrchestrationEngine implements IOrchestrationEngine {
       case "CREATE":
       case "DEBUG":
       case "DOCUMENT":
-        selectedAgentProfile = AGENT_PROFILES.GENERIC_LLM_V1; // Use LLM for creative tasks
+        selectedAgentProfile = AGENT_PROFILES.GENERIC_GEMINI_V1; // Use Gemini for creative tasks
         break;
       default:
-        selectedAgentProfile = AGENT_PROFILES.GENERIC_LLM_V1; // Default to LLM agent
+        selectedAgentProfile = AGENT_PROFILES.GENERIC_GEMINI_V1; // Default to Gemini agent
         break;
     }
 
@@ -167,9 +167,9 @@ export class OrchestrationEngine implements IOrchestrationEngine {
 
       // Securely pass API keys from host environment
       const geminiApiKey = process.env.GEMINI_API_KEY || "";
-      if (!geminiApiKey && agentName === "generic-llm-agent-v1") {
+      if (!geminiApiKey && (agentName === "generic-llm-agent-v1" || agentName === "generic-gemini-v1")) {
         console.warn(
-          "[NEXUS-CORE] ⚠️  WARNING: GEMINI_API_KEY not found in environment. LLM agent will fail."
+          `[NEXUS-CORE] ⚠️  WARNING: GEMINI_API_KEY not found in environment. Agent ${agentName} will fail.`
         );
       }
 
