@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import type { SystemEvent } from "../../preload";
+import type { SystemEvent } from "../../preload.cjs";
 import { CodeDisplay } from "./CodeDisplay";
 import "./DetailView.css";
 

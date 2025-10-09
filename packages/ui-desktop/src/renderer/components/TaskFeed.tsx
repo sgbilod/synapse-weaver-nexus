@@ -6,7 +6,7 @@
  */
 
 import React, { useEffect, useRef } from "react";
-import type { SystemEvent } from "../../preload";
+import type { SystemEvent } from "../../preload.cjs";
 import "./TaskFeed.css";
 
 interface TaskFeedProps {

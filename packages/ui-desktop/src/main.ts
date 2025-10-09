@@ -9,7 +9,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
 import { OrchestrationEngine } from "@synapse/nexus-core";
-import type { NexusState, SystemEvent } from "./preload";
+import type { NexusState, SystemEvent } from "./preload.cjs";
 
 // ES module compatibility
 const __filename = fileURLToPath(import.meta.url);

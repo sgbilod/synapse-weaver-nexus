@@ -10,7 +10,7 @@ import { StateMonitor } from "./components/StateMonitor";
 import { TaskFeed } from "./components/TaskFeed";
 import { DetailView } from "./components/DetailView";
 import { TaskInput } from "./components/TaskInput";
-import type { NexusState, SystemEvent } from "../preload";
+import type { NexusState, SystemEvent } from "../preload.cjs";
 import "./App.css";
 
 export const App: React.FC = () => {

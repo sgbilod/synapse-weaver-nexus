@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import type { NexusState } from "../../preload";
+import type { NexusState } from "../../preload.cjs";
 import "./StateMonitor.css";
 
 interface StateMonitorProps {
@@ -58,7 +58,7 @@ export const StateMonitor: React.FC<StateMonitorProps> = ({
           <p className="empty-state">No agents tracked yet</p>
         ) : (
           <div className="agent-list">
-            {agentEntries.map(([agentId, credibility]) => {
+            {agentEntries.map(([agentId, credibility]: [string, number]) => {
               // Default to 50% if credibility is NaN or invalid
               const safeCredibility =
                 isNaN(credibility) ||
