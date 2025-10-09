@@ -6,7 +6,7 @@
   "main": "dist-electron/main.js",
   "types": "dist/main.d.ts",
   "scripts": {
-    "dev": "vite",
+    "dev": "tsc -p tsconfig.preload.json && vite",
     "build": "tsc && vite build",
     "test": "jest",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
