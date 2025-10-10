@@ -1,10 +1,5 @@
 // packages/nexus-core/tests/nexus-core.test.ts
-import type {
-  TaskVector,
-  AgentProfile,
-  ExecutionPlan,
-  IOrchestrationEngine,
-} from "../src";
+import type { TaskVector, AgentProfile, IOrchestrationEngine } from "../src";
 
 describe("Cognitive Architecture Blueprint", () => {
   test("TaskVector interface should have a defined structure", () => {

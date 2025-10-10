@@ -1,5 +1,5 @@
 // packages/synapse-bridge/src/intentParser.test.ts
-import { parseIntent, ParsedIntent } from "./intentParser";
+import { parseIntent } from "./intentParser";
 
 describe("intentParser", () => {
   describe("TEST action classification", () => {

@@ -207,7 +207,7 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
       // Check request payload structure
       const requestPayload = mockAxiosPost.mock.calls[0][1];
       const taskVector = requestPayload.taskVector;
-      
+
       expect(taskVector).toMatchObject({
         id: expect.any(String),
         timestamp: expect.any(Number),

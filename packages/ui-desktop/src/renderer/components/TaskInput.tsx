@@ -9,7 +9,7 @@ import React, { useState, useRef, KeyboardEvent } from "react";
 import "./TaskInput.css";
 
 interface TaskInputProps {
-  onTaskSubmit: (task: string) => void;
+  onTaskSubmit: (_task: string) => void;
   isProcessing?: boolean;
 }
 

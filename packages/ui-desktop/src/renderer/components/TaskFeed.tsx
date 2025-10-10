@@ -11,7 +11,7 @@ import "./TaskFeed.css";
 
 interface TaskFeedProps {
   events: SystemEvent[];
-  onEventSelect?: (event: SystemEvent) => void;
+  onEventSelect?: (_event: SystemEvent) => void;
   selectedEvent?: SystemEvent | null;
 }
 

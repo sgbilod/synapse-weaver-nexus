@@ -448,7 +448,7 @@ export class OrchestrationEngine implements IOrchestrationEngine {
 
         // Wait for build to complete
         await new Promise<void>((resolve, reject) => {
-          this.docker.modem.followProgress(buildStream, (err, res) => {
+          this.docker.modem.followProgress(buildStream, (err, _res) => {
             if (err) {
               console.error(`[NEXUS-CORE] Docker build error:`, err);
               reject(err);

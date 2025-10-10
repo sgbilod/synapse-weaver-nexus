@@ -15,12 +15,12 @@ export interface IOrchestrationEngine {
   /**
    * Receives a task from the Synapse Bridge and begins processing.
    * This is the primary entry point for all developer requests.
-   * @param vector - The task vector containing developer intent and context
-   * @param projectRootPath - Absolute path to the project root for agent execution
+   * @param _vector - The task vector containing developer intent and context
+   * @param _projectRootPath - Absolute path to the project root for agent execution
    */
   receiveTask(
-    vector: TaskVector,
-    projectRootPath: string
+    _vector: TaskVector,
+    _projectRootPath: string
   ): Promise<ExecutionReceipt>;
 
   /**
@@ -28,22 +28,22 @@ export interface IOrchestrationEngine {
    * the most efficient execution plan. This considers cost, time, and quality.
    * Now async to support AI-powered task decomposition.
    */
-  createExecutionPlan(vector: TaskVector): Promise<ExecutionPlan>;
+  createExecutionPlan(_vector: TaskVector): Promise<ExecutionPlan>;
 
   /**
    * Deploys and manages an agent swarm based on a given plan.
    * This function handles the containerization and communication.
-   * @param plan - The execution plan to execute
-   * @param projectRootPath - Absolute path to the project root for Docker volume mounting
+   * @param _plan - The execution plan to execute
+   * @param _projectRootPath - Absolute path to the project root for Docker volume mounting
    */
   dispatchSwarm(
-    plan: ExecutionPlan,
-    projectRootPath: string
+    _plan: ExecutionPlan,
+    _projectRootPath: string
   ): Promise<ExecutionReceipt>;
 
   /**
    * Updates the Agent Credibility Engine based on the results of an execution.
    * This is a critical part of the system's self-governing security model.
    */
-  processReceipt(receipt: ExecutionReceipt): AgentCredibility;
+  processReceipt(_receipt: ExecutionReceipt): AgentCredibility;
 }

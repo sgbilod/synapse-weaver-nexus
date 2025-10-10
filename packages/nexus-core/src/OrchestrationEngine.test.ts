@@ -797,7 +797,7 @@ describe("Epic 6: Swarm Intelligence - Task Decomposition & Multi-Stage Executio
       expect(Array.isArray(plan.stages)).toBe(true);
 
       // Each stage should be executable
-      plan.stages.forEach((stage, index) => {
+      plan.stages.forEach((stage, _index) => {
         expect(stage.length).toBeGreaterThanOrEqual(1);
         expect(stage[0].agentProfile).toHaveProperty("id");
         expect(stage[0].agentProfile).toHaveProperty("archetype");
