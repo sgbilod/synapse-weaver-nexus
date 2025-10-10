@@ -2,6 +2,7 @@
 import { v4 as uuidv4 } from "uuid";
 import Docker from "dockerode";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import path from "path";
 import { IOrchestrationEngine } from "./nexus-core.js";
 import {
   TaskVector,
@@ -418,7 +419,6 @@ export class OrchestrationEngine implements IOrchestrationEngine {
     const imageName = `synapse-agent-${agentName}:latest`;
 
     // Use absolute path from project root
-    const path = await import("path");
     const dockerfilePath = path.join(
       projectRootPath,
       "packages",
