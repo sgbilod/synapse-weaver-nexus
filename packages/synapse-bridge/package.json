@@ -23,8 +23,8 @@
     "keybindings": [
       {
         "command": "synapse-weaver.activate",
-        "key": "ctrl+alt+s",
-        "mac": "cmd+alt+s",
+        "key": "ctrl+alt+shift+s",
+        "mac": "cmd+alt+shift+s",
         "when": "editorTextFocus"
       }
     ]

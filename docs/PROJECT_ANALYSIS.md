@@ -23,7 +23,7 @@ As of this analysis, the Genesis v1.0 system has achieved **full logical loop cl
 
 **✅ Operational Capabilities:**
 
-- **Synapse Bridge (VS Code Extension):** Captures developer intent via hotkey (`Ctrl+Alt+S`), parses natural language commands, and constructs structured `TaskVector` objects containing code context, parsed intent, and execution constraints.
+- **Synapse Bridge (VS Code Extension):** Captures developer intent via hotkey (`Ctrl+Alt+Shift+S`), parses natural language commands, and constructs structured `TaskVector` objects containing code context, parsed intent, and execution constraints.
 - **Intent Parser:** Rule-based keyword matching system that classifies user directives into 6 action types: `CREATE`, `TEST`, `REFACTOR`, `DEBUG`, `DOCUMENT`, `RESEARCH`.
 - **Nexus Core (Orchestration Engine):** Receives `TaskVector` objects, applies economic decision logic via rule-based agent selection, and generates `ExecutionPlan` objects specifying which specialized agents should handle the task.
 - **In-Process Integration:** Direct, synchronous communication between VS Code extension and orchestration engine for maximum performance in single-user deployment.
@@ -93,7 +93,7 @@ sequenceDiagram
     participant Agents as Mock Agent Profiles
 
     Developer->>VSCode: Select code block
-    Developer->>VSCode: Press Ctrl+Alt+S
+    Developer->>VSCode: Press Ctrl+Alt+Shift+S
     VSCode->>Bridge: Trigger synapse-weaver.activate command
     Bridge->>Developer: Show input box: "What is your directive?"
     Developer->>Bridge: Enter: "refactor this function"
