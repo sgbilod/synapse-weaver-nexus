@@ -444,7 +444,7 @@ $ npm start
 
 1. **Test the unified launcher:** `npm start` from project root
 2. **Verify server health:** `curl http://localhost:3002/task -X POST` (should return 400 with validation error)
-3. **Test extension command:** Open VS Code, select code, press Ctrl+Shift+W
+3. **Test extension command:** Open VS Code, select code, press Ctrl+Alt+S
 4. **Monitor logs:** Check console output for task flow
 5. **Validate crash isolation:** Kill server process, verify extension remains stable
 
