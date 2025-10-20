@@ -7,6 +7,7 @@
 
 import React, { useState, useRef, KeyboardEvent } from "react";
 import "./TaskInput.css";
+import { removeControlChars } from "../utils/textUtils";
 
 interface TaskInputProps {
   onTaskSubmit: (_task: string) => void;
@@ -21,22 +22,64 @@ export const TaskInput: React.FC<TaskInputProps> = ({
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const lastSubmitAtRef = useRef<number | null>(null);
+  const RATE_LIMIT_MS =
+    typeof process !== "undefined" &&
+    process.env &&
+    process.env.NODE_ENV === "test"
+      ? 0
+      : 500; // default 500ms rate limit in production
+
+  /**
+   * Sanitize a user-supplied task string before submitting it to the Core.
+   * - Trims whitespace
+   * - Removes control characters
+   * - Removes any script tags
+   * - Truncates to a safe maximum length
+   */
+  const sanitizeTask = (raw: string): string => {
+    if (!raw) return "";
+
+    // Trim first
+    let s = raw.trim();
+
+    // Remove invisible/control characters using the shared helper
+    s = removeControlChars(s);
+
+    // Remove script tags and their contents
+    s = s.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "");
+
+    // Simple truncation to avoid excessively large payloads
+    const MAX_LENGTH = 2000; // 2k characters
+    if (s.length > MAX_LENGTH) s = s.slice(0, MAX_LENGTH);
+
+    return s;
+  };
 
   const handleSubmit = () => {
-    const trimmedTask = taskText.trim();
-    if (!trimmedTask || isProcessing) return;
+    // Basic rate-limiting: avoid double submits within 500ms
+    const now = Date.now();
+    if (
+      lastSubmitAtRef.current &&
+      now - lastSubmitAtRef.current < RATE_LIMIT_MS
+    )
+      return;
+
+    const sanitized = sanitizeTask(taskText);
+    if (!sanitized || isProcessing) return;
 
     // Add to history
-    setHistory((prev) => [...prev, trimmedTask]);
+    setHistory((prev) => [...prev, sanitized]);
     setHistoryIndex(-1);
 
-    // Submit task
-    onTaskSubmit(trimmedTask);
+    // Submit task (already sanitized)
+    onTaskSubmit(sanitized);
 
-    // Clear input
+    // Record submit time
+    lastSubmitAtRef.current = now;
+
+    // Clear input and refocus
     setTaskText("");
-
-    // Refocus input
     inputRef.current?.focus();
   };
 
