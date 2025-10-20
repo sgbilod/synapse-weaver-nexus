@@ -59,12 +59,26 @@ export const App: React.FC = () => {
       setNexusState(updatedState);
     };
 
-    window.nexusApi.onStateUpdate(handleStateUpdate);
+    // Only attempt to register if the preload API is available and implements
+    // the subscription API. This makes the renderer safe to mount in test
+    // environments or when the preload bridge isn't present.
+    if (
+      window?.nexusApi &&
+      typeof window.nexusApi.onStateUpdate === "function"
+    ) {
+      window.nexusApi.onStateUpdate(handleStateUpdate);
 
-    // Cleanup listener on unmount
-    return () => {
-      window.nexusApi.removeStateUpdateListener();
-    };
+      // Cleanup listener on unmount
+      return () => {
+        if (typeof window.nexusApi.removeStateUpdateListener === "function") {
+          window.nexusApi.removeStateUpdateListener();
+        }
+      };
+    }
+
+    console.warn(
+      "[COMMAND DECK] nexusApi not available; skipping state update subscription"
+    );
   }, []);
 
   // Handle task submission

@@ -58,7 +58,15 @@ export interface SystemEvent {
 contextBridge.exposeInMainWorld("nexusApi", {
   getInitialState: () => ipcRenderer.invoke("nexus:get-initial-state"),
 
-  submitTask: (task: string) => ipcRenderer.invoke("nexus:submit-task", task),
+  /**
+   * Submit a sanitized task to the Nexus Core.
+   * Preload performs minimal validation/sanitization to reduce the risk of
+   * accidental or malicious payloads reaching the main process.
+   */
+  submitTask: (task: string) => {
+    const sanitized = sanitizeForIpc(task);
+    return ipcRenderer.invoke("nexus:submit-task", sanitized);
+  },
 
   onStateUpdate: (callback: (state: NexusState) => void) => {
     ipcRenderer.on("nexus:state-updated", (_event, state) => callback(state));
@@ -68,6 +76,24 @@ contextBridge.exposeInMainWorld("nexusApi", {
     ipcRenderer.removeAllListeners("nexus:state-updated");
   },
 } as NexusApi);
+
+/**
+ * Sanitize text before sending over IPC. Basic operations:
+ * - Ensure string type
+ * - Trim and cap length
+ * - Remove control characters and <script> tags
+ */
+import { removeControlChars } from "./renderer/utils/textUtils";
+
+function sanitizeForIpc(input: unknown): string {
+  if (typeof input !== "string") return "";
+  let s = input.trim();
+  s = removeControlChars(s);
+  s = s.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "");
+  const MAX_LENGTH = 4000;
+  if (s.length > MAX_LENGTH) s = s.slice(0, MAX_LENGTH);
+  return s;
+}
 
 // Type augmentation for window object
 declare global {

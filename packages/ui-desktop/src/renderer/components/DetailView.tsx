@@ -9,6 +9,7 @@ import React from "react";
 import type { SystemEvent } from "../../preload.cjs";
 import { CodeDisplay } from "./CodeDisplay";
 import "./DetailView.css";
+import { cleanOutput } from "../utils/textUtils";
 
 interface DetailViewProps {
   selectedEvent: SystemEvent | null;
@@ -29,14 +30,10 @@ export const DetailView: React.FC<DetailViewProps> = ({ selectedEvent }) => {
       // Try to parse output as JSON to extract code
       if (typeof firstResult.output === "string") {
         // Clean ANSI escape codes and other control characters
-        const cleanOutput = firstResult.output.replace(
-          // eslint-disable-next-line no-control-regex
-          /[\u0000-\u001F\u007F-\u009F]/g,
-          ""
-        );
+        const cleaned = cleanOutput(firstResult.output);
 
         // Try to extract JSON from the output
-        const jsonMatch = cleanOutput.match(/\{[\s\S]*\}/);
+        const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
           if (parsed.code) return parsed.code;
