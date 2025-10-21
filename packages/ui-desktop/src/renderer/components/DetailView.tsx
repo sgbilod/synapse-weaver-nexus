@@ -85,15 +85,11 @@ export const DetailView: React.FC<DetailViewProps> = ({ selectedEvent }) => {
           </div>
           <div className="event-detail-body">
             <p className="event-detail-message">{selectedEvent.message}</p>
-            {isReceiptDetails(selectedEvent.details) && (
+            {selectedEvent.details != null && (
               <div className="event-detail-json">
                 <h4>Details:</h4>
                 <pre>
-                  {JSON.stringify(
-                    selectedEvent.details as ReceiptDetails,
-                    null,
-                    2
-                  )}
+                  {JSON.stringify(selectedEvent.details, null, 2)}
                 </pre>
               </div>
             )}
