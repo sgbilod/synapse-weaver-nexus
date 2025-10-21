@@ -39,3 +39,20 @@ See: docs/TS6-MIGRATION-PLAN.md
 ## Notes
 
 - This PR is intentionally a draft; do not merge until the gating checks are satisfied.
+
+---
+
+## Gating check results (automated)
+
+- Date: 2025-10-21
+- Latest TypeScript available on npm: `5.9.3` (TypeScript 6 is not yet published)
+- `ts-jest@latest` peerDependencies: `"typescript": ">=4.3 <6"` — this explicitly excludes TypeScript 6 and blocks upgrading while we rely on ts-jest
+- `ts-node@latest` peerDependencies: `"typescript": ">=2.7"` — ts-node does not block upgrading
+
+Recommendation
+--------------
+- Keep this PR in Draft and mark it as blocked until the toolchain (notably ts-jest) publishes a compatible release that supports TypeScript 6.
+- Alternatives to unblock earlier:
+  - Migrate tests away from ts-jest to a transform that supports TS6 (e.g., a SWC based runner or Vitest), but this is a separate migration with its own risk/effort.
+  - Monitor ts-jest releases and prepare a follow-up PR to bump TypeScript once compatibility is confirmed.
+
