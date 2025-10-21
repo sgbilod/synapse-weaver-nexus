@@ -3,7 +3,7 @@ name: TypeScript 6 migration
 about: Migration PR to upgrade to TypeScript 6 and associated toolchain updates
 ---
 
-## Summary
+# Summary
 
 This PR upgrades the repository toolchain to TypeScript 6 and contains the minimal configuration and dependency changes required. See `docs/TS6-MIGRATION-PLAN.md` for full context and testing guidance.
 

@@ -47,40 +47,56 @@ See: docs/TS6-MIGRATION-PLAN.md
 
 **Last updated:** 2025-10-21
 
-### TypeScript 6 Availability ✅
+### TypeScript 6 Availability & Tool Compatibility
 
-- **TypeScript 6.0.0-dev versions ARE available on npm**
-- Latest dev version: `6.0.0-dev.20251021`
-- Status: Development versions published and accessible
+- Date checked: 2025-10-21
 
-### Tool Compatibility Status
+- TypeScript availability:
+  - Latest stable TypeScript on npm: `5.9.3` (no stable TS6 release yet)
+  - Development preview/dev builds for TS6 (e.g. `6.0.0-dev.*`) may be published but are not recommended for production use.
 
-#### ts-jest ❌ (BLOCKER)
-- Current peerDependencies: `"typescript": ">=4.3 <6"`
-- **This explicitly excludes TypeScript 6 and blocks upgrading while we rely on ts-jest**
-- Status: Awaiting ts-jest update to support TypeScript 6
+- Tool compatibility highlights:
+  - ts-jest (latest) peerDependencies: `"typescript": ">=4.3 <6"` — this explicitly blocks upgrading to TypeScript 6 while we continue to rely on ts-jest for Jest transforms.
+  - ts-node (latest) peerDependencies: `"typescript": ">=2.7"` — ts-node does not block upgrading.
 
-#### ts-node ✅
-- Current peerDependencies: `"typescript": ">=2.7"`
-- **ts-node does NOT block upgrading**
-- Status: Compatible
+## Recommendation
 
-### Recommendation
+---
 
-**Keep this PR in Draft** and mark it as blocked until the toolchain (notably ts-jest) publishes a compatible release that supports TypeScript 6.
+Keep this PR in Draft and mark it as blocked until the toolchain (notably ts-jest) publishes a compatible release that supports TypeScript 6. Alternatives to unblock earlier:
 
-### Alternatives to unblock earlier:
+1. Migrate tests away from ts-jest to a transform that supports TS6 (e.g., a SWC-based runner or Vitest) — this is a separate migration with its own risk/effort.
+2. Use TypeScript 6 dev builds with `ignoreDeprecations` to silence compiler deprecation warnings while acknowledging dev build instability (not recommended for production branches).
+3. Monitor ts-jest and other tool releases and prepare a follow-up PR to bump TypeScript once compatibility is confirmed.
 
-1. **Migrate tests away from ts-jest** to a transform that supports TS6 (e.g., SWC-based runner, Vitest, or ESBuild-based transforms)
-   - This is a separate migration with its own risk/effort
-   - Would require comprehensive testing migration
+---
 
-2. **Use TypeScript 6.0.0-dev with ignoreDeprecations**
-   - Install `typescript@6.0.0-dev.20251021` (or latest dev version)
-   - Use `ignoreDeprecations: "6.0"` in tsconfig to suppress warnings
-   - Note: Dev versions may have instabilities
+### Local automated verification (2025-10-21)
 
-3. **Monitor ts-jest releases** and prepare a follow-up PR to bump TypeScript once compatibility is confirmed
-   - Recommended approach for production stability
-   - Track: https://github.com/kulshekhar/ts-jest/issues
+I ran focused local checks to validate the repository state after the recent changes (logger centralization, preload/IPC hardening, and lint/type fixes):
 
+- TypeScript compile (local): `npx tsc -p tsconfig.base.json --noEmit` — PASS (no blocking compile errors). NOTE: the compiler still reports the planned deprecation advisory for `baseUrl` in several package `tsconfig.json` files; this is expected until TypeScript 6 is installed or the option `"ignoreDeprecations": "6.0"` is added under a TS6 upgrade.
+- ESLint (local): `eslint packages/ --ext .ts,.tsx` — PASS (no production `no-console` or explicit-`any` lint errors in source files; tests are allowed to use `any`).
+- Unit tests (logger-only): Jest run for the new logger tests — PASS (4 suites, 10 tests).
+
+Focused coverage (logger files only — `collectCoverageFrom: packages/*/src/logger.ts`):
+
+```text
+All files           |    82.5 |       75 |      75 |   80.55
+agent-foundry/logger|      80 |    66.66 |   66.66 |   77.77
+nexus-core/logger   |      90 |      100 |   83.33 |   88.88
+synapse-bridge/logger|     80 |    33.33 |   83.33 |   77.77
+ui-desktop/logger   |      80 |      100 |   66.66 |   77.77
+```
+
+Notes:
+
+- The coverage run above was intentionally focused on the logger modules to validate the new tests and to increase coverage for the most-critical small modules quickly. Overall package coverage across all code is not yet measured here — further tests will be required across UI components and core logic to reach the 85% coverage target.
+
+- The remaining TypeScript/ESLint issues are primarily the `baseUrl` deprecation advisory lines in individual package tsconfigs (these are not compile errors). The migration remains blocked by `ts-jest`'s peer dependency excluding TS6.
+
+Recommended immediate next steps (short):
+
+1. Continue adding small, focused unit tests for high-impact modules (e.g., `TaskFeed`, `DetailView`, `textUtils`) to raise package-level coverage toward 85%.
+2. Keep this PR in Draft and document the `ts-jest` compatibility blocker in the PR description (already included). If you want to unblock earlier, consider a separate migration to a TS6-compatible test transform (SWC/Vitest) — I can draft that plan next.
+3. If you'd like, I can push these edits and the new logger tests to the migration branch and update the Draft PR body with the gating-check results above.

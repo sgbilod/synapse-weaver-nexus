@@ -82,13 +82,13 @@ test.describe("Self-Certification: Activation Keybinding", () => {
   });
 
   test("should activate input box with Ctrl+Alt+Shift+S without crashing", async () => {
-  // CRITICAL TEST: Press the activation keybinding
-  testLogger.info("[Self-Certification] Pressing Ctrl+Alt+Shift+S...");
+    // CRITICAL TEST: Press the activation keybinding
+    testLogger.info("[Self-Certification] Pressing Ctrl+Alt+Shift+S...");
 
     await window.keyboard.press("Control+Alt+Shift+S");
 
     // Wait for input box to appear (with timeout)
-  testLogger.info("[Self-Certification] Waiting for input box to appear...");
+    testLogger.info("[Self-Certification] Waiting for input box to appear...");
 
     // Look for the input element with placeholder "Weaver is listening..."
     // or any input element that appears after activation
@@ -101,7 +101,9 @@ test.describe("Self-Certification: Activation Keybinding", () => {
         state: "visible",
         timeout: 5000,
       });
-      testLogger.info("[Self-Certification] ✅ Input box appeared successfully");
+      testLogger.info(
+        "[Self-Certification] ✅ Input box appeared successfully"
+      );
     } catch (_error) {
       // If specific input not found, check if any modal/dialog appeared
       const anyInput = window.locator("input, textarea");
@@ -118,7 +120,7 @@ test.describe("Self-Certification: Activation Keybinding", () => {
     }
 
     // STABILITY TEST: Verify application remains open and responsive
-  testLogger.info("[Self-Certification] Verifying application stability...");
+    testLogger.info("[Self-Certification] Verifying application stability...");
 
     for (let i = 1; i <= 5; i++) {
       await window.waitForTimeout(1000);
@@ -133,10 +135,12 @@ test.describe("Self-Certification: Activation Keybinding", () => {
       const bodyExists = await window.locator("body").isVisible();
       expect(bodyExists).toBe(true);
 
-  testLogger.info(`[Self-Certification] Stability check ${i}/5: PASSED`);
+      testLogger.info(`[Self-Certification] Stability check ${i}/5: PASSED`);
     }
 
-    testLogger.info("[Self-Certification] ✅ Application remained stable for 5+ seconds");
+    testLogger.info(
+      "[Self-Certification] ✅ Application remained stable for 5+ seconds"
+    );
   });
 
   test("should have functional UI after activation", async () => {
@@ -145,6 +149,8 @@ test.describe("Self-Certification: Activation Keybinding", () => {
     expect(appContent).toBeTruthy();
     expect(appContent?.length || 0).toBeGreaterThan(0);
 
-  testLogger.info("[Self-Certification] ✅ Application UI remains functional");
+    testLogger.info(
+      "[Self-Certification] ✅ Application UI remains functional"
+    );
   });
 });

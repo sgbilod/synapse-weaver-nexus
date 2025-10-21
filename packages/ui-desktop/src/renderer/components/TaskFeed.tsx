@@ -40,39 +40,52 @@ export const TaskFeed: React.FC<TaskFeedProps> = ({
         ) : (
           <div className="event-list">
             {events.map((event, index) => {
+              const detailsJson = (() => {
+                try {
+                  if (event.details == null) return null;
+                  return JSON.stringify(event.details, null, 2);
+                } catch (_err) {
+                  return null;
+                }
+              })();
               const isSelected =
                 selectedEvent?.timestamp === event.timestamp &&
                 selectedEvent?.type === event.type;
               const isClickable =
                 event.type === "RECEIPT_PROCESSED" && onEventSelect;
 
-              return (
-                <div
-                  key={`${event.timestamp}-${index}`}
-                  className={`event-item event-${event.type.toLowerCase()} ${
-                    isSelected ? "selected" : ""
-                  } ${isClickable ? "clickable" : ""}`}
-                  onClick={() => isClickable && onEventSelect(event)}
-                  role={isClickable ? "button" : undefined}
-                  tabIndex={isClickable ? 0 : undefined}
-                >
+              const className = `event-item event-${event.type.toLowerCase()} ${
+                isSelected ? "selected" : ""
+              } ${isClickable ? "clickable" : ""}`;
+
+              const inner = (
+                <>
                   <div className="event-header">
-                    <span className="event-icon">
-                      {getEventIcon(event.type)}
-                    </span>
-                    <span className="event-type">
-                      {formatEventType(event.type)}
-                    </span>
-                    <span className="event-timestamp">
-                      {formatTimestamp(event.timestamp)}
-                    </span>
+                    <span className="event-icon">{getEventIcon(event.type)}</span>
+                    <span className="event-type">{formatEventType(event.type)}</span>
+                    <span className="event-timestamp">{formatTimestamp(event.timestamp)}</span>
                   </div>
                   <div className="event-message">{event.message}</div>
-                  {event.details && (
+                  {detailsJson && (
                     <div className="event-details">
-                      <pre>{JSON.stringify(event.details, null, 2)}</pre>
+                      <pre>{String(detailsJson)}</pre>
                     </div>
                   )}
+                </>
+              );
+
+              return isClickable ? (
+                <button
+                  key={`${event.timestamp}-${index}`}
+                  type="button"
+                  className={className}
+                  onClick={() => onEventSelect && onEventSelect(event)}
+                >
+                  {inner}
+                </button>
+              ) : (
+                <div key={`${event.timestamp}-${index}`} className={className}>
+                  {inner}
                 </div>
               );
             })}

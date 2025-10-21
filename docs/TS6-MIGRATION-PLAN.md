@@ -28,10 +28,11 @@ This document outlines the step-by-step plan to migrate the monorepo to TypeScri
 1. ✅ **Verify a published TypeScript 6 release exists and is available in npm:**
 
    **STATUS: AVAILABLE** - TypeScript 6.0.0-dev versions are published on npm.
-   
+
    Latest dev version: `6.0.0-dev.20251021`
-   
+
    Check command:
+
    ```powershell
    npm view typescript versions --json | ConvertFrom-Json | Select-Object -Last 1
    ```
@@ -41,13 +42,13 @@ This document outlines the step-by-step plan to migrate the monorepo to TypeScri
    **ts-jest compatibility:** `"typescript": ">=4.3 <6"` — **BLOCKER**
    - ts-jest explicitly excludes TypeScript 6 in its peerDependencies
    - Must wait for ts-jest update OR migrate to alternative test runner
-   
+
    **ts-node compatibility:** `"typescript": ">=2.7"` — ✅ Compatible
-   
+
    **Other tooling:** Confirm new versions exist that list TypeScript 6 in their peerDependencies.
 
 3. ✅ **Ensure CI runners support the Node.js version needed for the toolchain:**
-   
+
    Current CI uses Node.js 20, which is compatible with TypeScript 6.
 
 ## High-level plan
@@ -60,6 +61,7 @@ This document outlines the step-by-step plan to migrate the monorepo to TypeScri
    - ts-node
    - @types/node (if required)
    - other tooling with TypeScript peer-constraints (lint build plugins).
+
 4. Add the new compiler option to `tsconfig.base.json` to silence the planned deprecation only after TypeScript 6 is installed:
 
    ```jsonc
@@ -82,6 +84,11 @@ This document outlines the step-by-step plan to migrate the monorepo to TypeScri
 
    ```powershell
    npx tsc -p tsconfig.base.json --noEmit
+   ```
+
+   Then run the repository linter:
+
+   ```powershell
    npm run lint
    ```
 
@@ -95,8 +102,6 @@ This document outlines the step-by-step plan to migrate the monorepo to TypeScri
 9. Once everything passes locally, push the branch and open the PR (use the PR draft body in docs/PR_DRAFT_chore-ts-migration-6.md). Keep the PR as a draft until CI is green.
 
 ## CI Changes
-
-The following changes are required to `.github/workflows/ci.yml` to support the TypeScript 6 migration:
 
 ### Add TypeScript Compilation Check
 
@@ -127,7 +132,7 @@ Current CI uses Node.js 20, which is compatible with TypeScript 6. No changes re
 ```yaml
 strategy:
   matrix:
-    node-version: [20, 22]  # Example if Node 22 becomes required
+    node-version: [20, 22] # Example if Node 22 becomes required
 ```
 
 ### Recommended CI Step Order
@@ -155,7 +160,6 @@ strategy:
 
 - All CI checks return green.
 - Repo compiles cleanly with TypeScript 6 and shows no remaining baseUrl deprecation warnings.
-- Lint rules pass (0 errors). Tests (unit, integration, E2E) pass and coverage thresholds are met.
 
 ## Rollback plan
 

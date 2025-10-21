@@ -22,7 +22,10 @@ export default [
       "@typescript-eslint": tseslint,
     },
     rules: {
-      "no-console": "warn",
+      // Enforce no-console in production source files. Use the per-package
+      // logger modules for diagnostics; we allow console.* only inside
+      // dedicated logger files via the override below.
+      "no-console": "error",
       "no-unused-vars": "off", // Turn off base rule
       "@typescript-eslint/no-unused-vars": [
         "warn",

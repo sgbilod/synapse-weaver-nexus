@@ -91,30 +91,13 @@ export const App: React.FC = () => {
   // Error state
   if (error) {
     return (
-      <div className="app-loading" style={{ background: "#1a0a0a" }}>
-        <div
-          style={{
-            padding: "2rem",
-            background: "#ff000020",
-            border: "2px solid #ff0000",
-            borderRadius: "8px",
-            maxWidth: "600px",
-          }}
-        >
-          <h2 style={{ color: "#ff4444", marginBottom: "1rem" }}>
-            ⚠️ Error Loading Command Deck
-          </h2>
-          <p style={{ color: "#ffaaaa", marginBottom: "1rem" }}>{error}</p>
+      <div className="app-loading app-loading--error">
+        <div className="error-panel">
+          <h2 className="error-title">⚠️ Error Loading Command Deck</h2>
+          <p className="error-text">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            style={{
-              padding: "0.5rem 1rem",
-              background: "#ff4444",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
+            className="error-button"
           >
             Reload
           </button>
