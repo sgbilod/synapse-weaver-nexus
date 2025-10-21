@@ -12,7 +12,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "packages/*": ["packages/*/src"]
+      "packages/*": ["packages/*/src"],
+      "@synapse/nexus-core": ["packages/nexus-core/src"],
+      "@synapse/agent-foundry": ["packages/agent-foundry/src"],
+      "@synapse/synapse-bridge": ["packages/synapse-bridge/src"]
     },
     "types": ["node", "jest", "@testing-library/jest-dom", "@playwright/test"],
     "outDir": "./dist",
