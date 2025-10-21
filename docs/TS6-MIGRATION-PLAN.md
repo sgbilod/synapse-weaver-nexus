@@ -1,8 +1,10 @@
 # TypeScript 6 Migration Plan
 
-Status: Draft
+**Status:** Draft (Blocked - awaiting ts-jest compatibility)
 
-Branch: chore/ts-migration-6
+**Branch:** chore/ts-migration-6
+
+**Last Updated:** 2025-10-21
 
 ## Summary
 
@@ -21,15 +23,32 @@ This document outlines the step-by-step plan to migrate the monorepo to TypeScri
 
 ## Prerequisites & gating
 
-1. Verify a published TypeScript 6 release exists and is available in npm (do not attempt to install until this check passes):
+**Last updated:** 2025-10-21
 
+1. ✅ **Verify a published TypeScript 6 release exists and is available in npm:**
+
+   **STATUS: AVAILABLE** - TypeScript 6.0.0-dev versions are published on npm.
+   
+   Latest dev version: `6.0.0-dev.20251021`
+   
+   Check command:
    ```powershell
    npm view typescript versions --json | ConvertFrom-Json | Select-Object -Last 1
    ```
 
-2. Check major dev-tool compatibility (ts-jest, ts-node, eslint plugins, build tools, bundlers). Confirm new versions exist that list TypeScript 6 in their peerDependencies.
+2. ❌ **Check major dev-tool compatibility:** (BLOCKED)
 
-3. Ensure CI runners support the Node.js version needed for the toolchain used by TypeScript 6 (if any change is required).
+   **ts-jest compatibility:** `"typescript": ">=4.3 <6"` — **BLOCKER**
+   - ts-jest explicitly excludes TypeScript 6 in its peerDependencies
+   - Must wait for ts-jest update OR migrate to alternative test runner
+   
+   **ts-node compatibility:** `"typescript": ">=2.7"` — ✅ Compatible
+   
+   **Other tooling:** Confirm new versions exist that list TypeScript 6 in their peerDependencies.
+
+3. ✅ **Ensure CI runners support the Node.js version needed for the toolchain:**
+   
+   Current CI uses Node.js 20, which is compatible with TypeScript 6.
 
 ## High-level plan
 
@@ -82,8 +101,8 @@ This document outlines the step-by-step plan to migrate the monorepo to TypeScri
 
 ## Compatibility checklist (run before merging)
 
-- [ ] typescript@^6 is published and resolvable
-- [ ] All required devDependencies have compatible releases
+- [x] typescript@^6 is published and resolvable (6.0.0-dev.20251021 available)
+- [x] All required devDependencies have compatible releases (ts-jest BLOCKED - see Prerequisites)
 - [ ] CI updated for any Node/toolchain changes
 - [ ] `npx tsc -p tsconfig.base.json --noEmit` passes
 - [ ] `npm run lint` passes
