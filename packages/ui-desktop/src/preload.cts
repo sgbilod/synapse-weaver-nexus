@@ -51,7 +51,8 @@ export interface SystemEvent {
     | "AGENT_DISPATCHED"
     | "RECEIPT_PROCESSED";
   message: string;
-  details?: any;
+  // Details may be any JSON-serializable payload; use unknown here and narrow at use sites.
+  details?: unknown;
 }
 
 // Expose the protected API to the renderer process

@@ -101,7 +101,7 @@ test.describe("Self-Certification: Activation Keybinding", () => {
         timeout: 5000,
       });
       console.log("[Self-Certification] ✅ Input box appeared successfully");
-    } catch (error) {
+    } catch (_error) {
       // If specific input not found, check if any modal/dialog appeared
       const anyInput = window.locator("input, textarea");
       const inputCount = await anyInput.count();

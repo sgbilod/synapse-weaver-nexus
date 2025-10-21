@@ -3,7 +3,7 @@
  * We mock `react-dom/client` to avoid actually creating a real root
  * and verify that the app attempts to render.
  */
-import React from "react";
+// React import unnecessary with the new JSX transform in this test
 
 describe("renderer entry (main.tsx)", () => {
   test("creates root and renders App", () => {

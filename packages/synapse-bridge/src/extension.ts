@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 import { v4 as uuidv4 } from "uuid";
 import { parseIntent } from "./intentParser";
 import axios from "axios";
+import { logger } from "./logger";
 
 // TaskVector type definition (copied from nexus-core for v1)
 interface TaskVector {
@@ -24,7 +25,7 @@ interface TaskVector {
   projectContext: {
     projectId: string;
     filePath: string;
-    projectStyleGuide: Record<string, any>;
+    projectStyleGuide: Record<string, unknown>;
   };
   constraints: {
     maxBudget: number;
@@ -38,7 +39,7 @@ interface TaskVector {
  * Registers the synapse-weaver.activate command.
  */
 export function activate(context: vscode.ExtensionContext) {
-  console.log("[Synapse Bridge] Activating...");
+  logger.info("Activating...");
 
   const disposable = vscode.commands.registerCommand(
     "synapse-weaver.activate",
@@ -94,7 +95,7 @@ export function activate(context: vscode.ExtensionContext) {
           projectContext: {
             projectId: vscode.workspace.name || "unknown-project",
             filePath: editor.document.uri.fsPath,
-            projectStyleGuide: {}, // Placeholder for future Personal En-gram
+            projectStyleGuide: {} as Record<string, unknown>, // Placeholder for future Personal En-gram
           },
           constraints: {
             maxBudget: 10.0, // Placeholder: $10 max computational cost
@@ -126,8 +127,8 @@ export function activate(context: vscode.ExtensionContext) {
         const executionReceipt = response.data;
 
         // Log the execution result for debugging
-        console.log("--- Synapse Bridge: Execution Receipt Received ---");
-        console.log(JSON.stringify(executionReceipt, null, 2));
+        logger.info("--- Execution Receipt Received ---");
+        logger.debug(JSON.stringify(executionReceipt, null, 2));
 
         // Announce the result to the user
         if (executionReceipt.outcome === "COMPLETED") {
@@ -144,7 +145,7 @@ export function activate(context: vscode.ExtensionContext) {
           );
         }
       } catch (error) {
-        console.error("[Synapse Bridge] A fatal error occurred:", error);
+        logger.error("A fatal error occurred:", error);
         vscode.window.showErrorMessage(
           `Synapse Weaver encountered a critical error: ${error instanceof Error ? error.message : "Unknown error"}. Please check the debug console (Help > Toggle Developer Tools) and ensure Docker is running.`
         );
@@ -159,5 +160,5 @@ export function activate(context: vscode.ExtensionContext) {
  * Deactivates the Synapse Bridge extension.
  */
 export function deactivate() {
-  console.log("[SYNAPSE-BRIDGE] Extension deactivated");
+  logger.info("Extension deactivated");
 }

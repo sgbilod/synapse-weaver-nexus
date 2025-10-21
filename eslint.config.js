@@ -38,7 +38,7 @@ export default [
     },
   },
   {
-    files: ["**/*.test.ts", "**/*.spec.ts"],
+    files: ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],
     languageOptions: {
       globals: {
         ...globals.node,
@@ -47,12 +47,23 @@ export default [
     },
     rules: {
       "@typescript-eslint/no-explicit-any": "off", // Allow any in tests
+      "no-console": "off",
+    },
+  },
+  {
+    files: ["packages/**/src/**/logger.{ts,tsx,cts,cjs}"],
+    rules: {
+      // Allow console usage only in dedicated logger modules. All other source files
+      // should use the repository logging abstraction (logger.*) to centralize
+      // diagnostics and avoid ad-hoc console calls.
+      "no-console": "off",
     },
   },
   {
     ignores: [
       "**/dist/**",
       "**/dist-electron/**",
+      "**/.history/**",
       "**/*.d.ts",
       "**/*.js",
       "**/*.cjs",

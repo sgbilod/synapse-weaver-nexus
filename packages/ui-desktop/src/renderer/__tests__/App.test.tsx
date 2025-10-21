@@ -3,13 +3,28 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { App } from "../App";
 
 describe("App (Command Deck) integration", () => {
-  const originalNexusApi = (global as any).window?.nexusApi;
+  type MaybeNexusApi =
+    | {
+        getInitialState?: () => Promise<unknown>;
+        submitTask?: (task: string) => Promise<void>;
+        onStateUpdate?: (...args: unknown[]) => void;
+        removeStateUpdateListener?: () => void;
+      }
+    | undefined;
+
+  const originalNexusApi = (
+    global as unknown as { window?: { nexusApi?: MaybeNexusApi } }
+  ).window?.nexusApi;
 
   afterEach(() => {
     // Restore original API to avoid test leakage
     if (typeof window !== "undefined") {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).nexusApi = originalNexusApi;
+      (global as unknown as { window?: { nexusApi?: MaybeNexusApi } }).window =
+        {
+          ...(global as unknown as { window?: { nexusApi?: MaybeNexusApi } })
+            .window,
+          nexusApi: originalNexusApi,
+        };
     }
     jest.restoreAllMocks();
   });

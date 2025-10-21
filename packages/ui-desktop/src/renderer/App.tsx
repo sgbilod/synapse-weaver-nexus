@@ -12,6 +12,7 @@ import { DetailView } from "./components/DetailView";
 import { TaskInput } from "./components/TaskInput";
 import type { NexusState, SystemEvent } from "../preload.cjs";
 import "./App.css";
+import { logger } from "../logger";
 
 export const App: React.FC = () => {
   const [nexusState, setNexusState] = useState<NexusState | null>(null);
@@ -24,9 +25,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     const initializeState = async () => {
       try {
-        console.log(
-          "[COMMAND DECK] Requesting initial state from Nexus Core..."
-        );
+        logger.info("Requesting initial state from Nexus Core...");
 
         // Check if nexusApi is available
         if (!window.nexusApi) {
@@ -36,14 +35,11 @@ export const App: React.FC = () => {
         const initialState = await window.nexusApi.getInitialState();
         setNexusState(initialState);
         setIsConnected(true);
-        console.log("[COMMAND DECK] Initial state received:", initialState);
+        logger.info("Initial state received:", initialState);
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
-        console.error(
-          "[COMMAND DECK] Failed to get initial state:",
-          errorMessage
-        );
+        logger.error("Failed to get initial state:", errorMessage);
         setError(errorMessage);
         setIsConnected(false);
       }
@@ -55,7 +51,7 @@ export const App: React.FC = () => {
   // Listen for real-time state updates
   useEffect(() => {
     const handleStateUpdate = (updatedState: NexusState) => {
-      console.log("[COMMAND DECK] State update received:", updatedState);
+      logger.info("State update received:", updatedState);
       setNexusState(updatedState);
     };
 
@@ -76,9 +72,7 @@ export const App: React.FC = () => {
       };
     }
 
-    console.warn(
-      "[COMMAND DECK] nexusApi not available; skipping state update subscription"
-    );
+    logger.warn("nexusApi not available; skipping state update subscription");
   }, []);
 
   // Handle task submission
@@ -86,9 +80,9 @@ export const App: React.FC = () => {
     setIsProcessingTask(true);
     try {
       await window.nexusApi.submitTask(task);
-      console.log("[COMMAND DECK] Task submitted successfully");
+      logger.info("Task submitted successfully");
     } catch (error) {
-      console.error("[COMMAND DECK] Failed to submit task:", error);
+      logger.error("Failed to submit task:", error);
     } finally {
       setIsProcessingTask(false);
     }

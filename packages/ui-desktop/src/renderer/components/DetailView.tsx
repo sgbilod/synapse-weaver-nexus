@@ -10,9 +10,21 @@ import type { SystemEvent } from "../../preload.cjs";
 import { CodeDisplay } from "./CodeDisplay";
 import "./DetailView.css";
 import { cleanOutput } from "../utils/textUtils";
+import { logger } from "../../logger";
 
 interface DetailViewProps {
   selectedEvent: SystemEvent | null;
+}
+
+type ReceiptDetails = {
+  results?: Array<{ output?: string; code?: string }>;
+  [key: string]: unknown;
+};
+
+function isReceiptDetails(d: unknown): d is ReceiptDetails {
+  if (typeof d !== "object" || d === null) return false;
+  const candidate = d as { results?: unknown };
+  return Array.isArray(candidate.results);
 }
 
 export const DetailView: React.FC<DetailViewProps> = ({ selectedEvent }) => {
@@ -22,9 +34,9 @@ export const DetailView: React.FC<DetailViewProps> = ({ selectedEvent }) => {
 
     try {
       const details = event.details;
-      if (!details?.results || !Array.isArray(details.results)) return null;
+      if (!isReceiptDetails(details)) return null;
 
-      const firstResult = details.results[0];
+      const firstResult = details.results?.[0];
       if (!firstResult) return null;
 
       // Try to parse output as JSON to extract code
@@ -42,7 +54,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ selectedEvent }) => {
 
       return null;
     } catch (error) {
-      console.error("Failed to extract code from event:", error);
+      logger.error("Failed to extract code from event:", error);
       return null;
     }
   };
@@ -73,10 +85,16 @@ export const DetailView: React.FC<DetailViewProps> = ({ selectedEvent }) => {
           </div>
           <div className="event-detail-body">
             <p className="event-detail-message">{selectedEvent.message}</p>
-            {selectedEvent.details && (
+            {isReceiptDetails(selectedEvent.details) && (
               <div className="event-detail-json">
                 <h4>Details:</h4>
-                <pre>{JSON.stringify(selectedEvent.details, null, 2)}</pre>
+                <pre>
+                  {JSON.stringify(
+                    selectedEvent.details as ReceiptDetails,
+                    null,
+                    2
+                  )}
+                </pre>
               </div>
             )}
           </div>
