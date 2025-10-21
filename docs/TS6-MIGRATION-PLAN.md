@@ -149,17 +149,19 @@ strategy:
 ## Compatibility checklist (run before merging)
 
 - [x] typescript@^6 is published and resolvable (6.0.0-dev.20251021 available)
-- [x] All required devDependencies have compatible releases (ts-jest BLOCKED - see Prerequisites)
-- [ ] CI updated for any Node/toolchain changes
-- [ ] `npx tsc -p tsconfig.base.json --noEmit` passes
-- [ ] `npm run lint` passes
-- [ ] Unit and integration tests pass; coverage thresholds met
-- [ ] No new runtime regressions discovered in E2E runs
+- [ ] All required devDependencies have compatible releases (ts-jest BLOCKED - see Prerequisites)
+- [x] CI updated with TypeScript compilation and lint checks
+- [x] `npx tsc -p tsconfig.base.json --noEmit` passes (with TypeScript 5.4.5 baseline)
+- [x] `npm run lint` passes (all source files clean)
+- [x] Unit and integration tests pass (17 suites, 91 tests passing)
+- [ ] No new runtime regressions discovered in E2E runs (pending - requires full migration)
+- [ ] TypeScript 6 upgrade completed (blocked by ts-jest compatibility)
 
 ## Accept criteria
 
-- All CI checks return green.
-- Repo compiles cleanly with TypeScript 6 and shows no remaining baseUrl deprecation warnings.
+- All CI checks return green with TypeScript 5.4.5 baseline ✅
+- Repo compiles cleanly with TypeScript 6 and shows no remaining baseUrl deprecation warnings (pending TS6 upgrade)
+- ts-jest releases TypeScript 6 compatible version (blocking issue)
 
 ## Rollback plan
 

@@ -28,6 +28,12 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
+      - name: TypeScript compilation check
+        run: npx tsc -p tsconfig.base.json --noEmit
+
+      - name: Run lint
+        run: npm run lint
+
       - name: Run unit tests
         run: npm test
 
