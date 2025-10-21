@@ -61,9 +61,15 @@ export const TaskFeed: React.FC<TaskFeedProps> = ({
               const inner = (
                 <>
                   <div className="event-header">
-                    <span className="event-icon">{getEventIcon(event.type)}</span>
-                    <span className="event-type">{formatEventType(event.type)}</span>
-                    <span className="event-timestamp">{formatTimestamp(event.timestamp)}</span>
+                    <span className="event-icon">
+                      {getEventIcon(event.type)}
+                    </span>
+                    <span className="event-type">
+                      {formatEventType(event.type)}
+                    </span>
+                    <span className="event-timestamp">
+                      {formatTimestamp(event.timestamp)}
+                    </span>
                   </div>
                   <div className="event-message">{event.message}</div>
                   {detailsJson && (

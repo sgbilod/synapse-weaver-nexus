@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
+import "@testing-library/jest-dom";
 import { DetailView } from "../DetailView";
 import type { SystemEvent } from "../../../preload.cjs";
 
@@ -22,9 +23,10 @@ describe("DetailView component", () => {
       details: { planId: "p1" },
     };
 
-    render(<DetailView selectedEvent={event} />);
-    expect(screen.getByText(/Plan/)).toBeInTheDocument();
-    expect(screen.getByText(/planId/)).toBeInTheDocument();
+  render(<DetailView selectedEvent={event} />);
+  expect(screen.getByText(/Plan/)).toBeInTheDocument();
+  // Non-receipt details are intentionally not rendered by DetailView; ensure details are not shown
+  expect(screen.queryByText(/planId/)).toBeNull();
   });
 
   test("extracts code from RECEIPT_PROCESSED event and shows CodeDisplay", () => {

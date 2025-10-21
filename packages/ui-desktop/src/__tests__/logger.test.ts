@@ -1,5 +1,12 @@
 /// <reference types="jest" />
-import { describe, test, expect, beforeEach, afterEach, jest } from "@jest/globals";
+import {
+  describe,
+  test,
+  expect,
+  beforeEach,
+  afterEach,
+  jest,
+} from "@jest/globals";
 import { logger } from "../logger";
 
 describe("ui-desktop logger", () => {

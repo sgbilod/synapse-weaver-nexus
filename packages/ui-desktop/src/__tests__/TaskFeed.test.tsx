@@ -18,16 +18,12 @@ describe("TaskFeed component", () => {
         timestamp: 1,
         type: "RECEIPT_PROCESSED",
         message: "Completed",
-        details: { results: [{ output: "{\"code\": \"console.log(1)\"}" }] },
+        details: { results: [{ output: '{"code": "console.log(1)"}' }] },
       },
     ];
 
     render(
-      <TaskFeed
-        events={events}
-        onEventSelect={onSelect}
-        selectedEvent={null}
-      />
+      <TaskFeed events={events} onEventSelect={onSelect} selectedEvent={null} />
     );
 
     // message renders
@@ -44,7 +40,12 @@ describe("TaskFeed component", () => {
 
   test("renders non-receipt events as non-clickable items", () => {
     const events: SystemEvent[] = [
-      { timestamp: 2, type: "TASK_RECEIVED", message: "Received", details: null },
+      {
+        timestamp: 2,
+        type: "TASK_RECEIVED",
+        message: "Received",
+        details: null,
+      },
     ];
 
     render(<TaskFeed events={events} />);
