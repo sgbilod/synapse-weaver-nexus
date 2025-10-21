@@ -96,8 +96,50 @@ This document outlines the step-by-step plan to migrate the monorepo to TypeScri
 
 ## CI Changes
 
-- Update workflow matrix for Node versions if TS6 requires newer Node.
-- Add an explicit step to run `npx tsc -p tsconfig.base.json --noEmit` earlier in the pipeline so migration failures are discovered quickly.
+The following changes are required to `.github/workflows/ci.yml` to support the TypeScript 6 migration:
+
+### Add TypeScript Compilation Check
+
+Add an explicit step to run TypeScript compilation early in the pipeline so migration failures are discovered quickly:
+
+```yaml
+- name: TypeScript compilation check
+  run: npx tsc -p tsconfig.base.json --noEmit
+```
+
+This step should be added after "Install dependencies" and before "Run unit tests".
+
+### Add Lint Check
+
+Add a lint check step to catch code quality issues:
+
+```yaml
+- name: Run lint
+  run: npm run lint
+```
+
+This step should be added after the TypeScript compilation check.
+
+### Node Version Matrix (if needed)
+
+Current CI uses Node.js 20, which is compatible with TypeScript 6. No changes required at this time, but if TypeScript 6 final release requires a newer Node version, update the matrix:
+
+```yaml
+strategy:
+  matrix:
+    node-version: [20, 22]  # Example if Node 22 becomes required
+```
+
+### Recommended CI Step Order
+
+1. Checkout code
+2. Set up Node.js
+3. Install dependencies
+4. Install Playwright browsers
+5. **TypeScript compilation check** (NEW)
+6. **Run lint** (NEW)
+7. Run unit tests
+8. Run end-to-end tests
 
 ## Compatibility checklist (run before merging)
 

@@ -16,9 +16,10 @@ See: docs/TS6-MIGRATION-PLAN.md
 
 ## Proposed steps (high level)
 
-- Gate: confirm typescript@^6 is published and the core dev-tools are compatible
+- Gate: confirm typescript@^6 is published and the core dev-tools are compatible ✅ (TypeScript available, ts-jest blocks)
 - Bump typescript and supporting devDependencies
 - Add `ignoreDeprecations` in tsconfig.base.json
+- Update CI to add TypeScript compilation and lint checks
 - Run full compile + lint + tests, fix issues
 - Update CI and merge once green
 
