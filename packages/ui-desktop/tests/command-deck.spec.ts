@@ -8,6 +8,11 @@
 import { test, expect } from "@playwright/test";
 import { _electron as electron } from "playwright";
 import path from "path";
+import { fileURLToPath } from "url";
+
+// Provide __dirname in ESM contexts for Playwright tests
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 test.describe("Command Deck E2E", () => {
   test("should launch Electron app and display Command Deck UI", async () => {
@@ -21,8 +26,10 @@ test.describe("Command Deck E2E", () => {
     const window = await electronApp.firstWindow();
     await window.waitForLoadState("domcontentloaded");
 
-    // Verify window is visible
-    expect(await window.isVisible()).toBe(true);
+    // Verify window is visible (document visibility state)
+    expect(
+      await window.evaluate(() => document.visibilityState === "visible")
+    ).toBe(true);
 
     // Verify title
     const title = await window.title();

@@ -7,6 +7,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
+import { logger } from "../logger";
 
 const rootElement = document.getElementById("root");
 
@@ -24,4 +25,4 @@ root.render(
   </React.StrictMode>
 );
 
-console.log("[COMMAND DECK] Renderer process initialized");
+logger.info("Renderer process initialized");

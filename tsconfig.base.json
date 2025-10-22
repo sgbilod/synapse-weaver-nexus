@@ -7,17 +7,24 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
       "packages/*": ["packages/*/src"]
     },
-    "types": ["node", "jest", "@playwright/test"],
+    "types": ["node", "jest", "@testing-library/jest-dom", "@playwright/test"],
     "outDir": "./dist",
     "declaration": true,
     "sourceMap": true
   },
   "include": ["packages/**/*", "tests/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.spec.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/dist/**",
+    "**/dist-electron/**",
+    "**/*.spec.ts"
+  ]
 }

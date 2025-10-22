@@ -9,6 +9,7 @@
  */
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { logger } from "../logger";
 
 interface TaskOutput {
   success: boolean;
@@ -18,7 +19,7 @@ interface TaskOutput {
 }
 
 async function main() {
-  console.log("[LLM-AGENT-V1] 🚀 Initializing Generic LLM Agent...");
+  logger.info("🚀 Initializing Generic LLM Agent...");
 
   // Read environment variables
   const apiKey = process.env.GEMINI_API_KEY;
@@ -32,14 +33,15 @@ async function main() {
       error:
         "GEMINI_API_KEY environment variable not set. Cannot proceed without API credentials.",
     };
-    console.error("[LLM-AGENT-V1] ❌ CRITICAL ERROR:", output.error);
-    console.log(JSON.stringify(output));
+    logger.error("❌ CRITICAL ERROR:", output.error);
+    // Machine-readable output should be emitted raw to stdout.
+    process.stdout.write(JSON.stringify(output) + "\n");
     process.exit(1);
   }
 
   try {
-    console.log(`[LLM-AGENT-V1] 📋 Processing Task ID: ${taskId}`);
-    console.log(`[LLM-AGENT-V1] 💭 Task Description: "${taskDescription}"`);
+    logger.info(`📋 Processing Task ID: ${taskId}`);
+    logger.info(`💭 Task Description: "${taskDescription}"`);
 
     // Initialize Google Generative AI
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -61,7 +63,7 @@ IMPORTANT: Provide ONLY the code. No markdown formatting, no explanations outsid
 
 Generate the code now:`;
 
-    console.log("[LLM-AGENT-V1] 🤖 Calling Gemini AI...");
+    logger.info("🤖 Calling Gemini AI...");
 
     // Call Gemini API
     const result = await model.generateContent(prompt);
@@ -89,11 +91,12 @@ Generate the code now:`;
       code: cleanCode,
     };
 
-    console.log("[LLM-AGENT-V1] ✅ Task completed successfully!");
-    console.log(
+    logger.info("✅ Task completed successfully!");
+    logger.info(
       `[LLM-AGENT-V1] 📊 Generated ${cleanCode.split("\n").length} lines of code`
     );
-    console.log(JSON.stringify(output, null, 2));
+    // Emit result as raw JSON for consumers
+    process.stdout.write(JSON.stringify(output, null, 2) + "\n");
     process.exit(0);
   } catch (error) {
     // Handle errors gracefully
@@ -103,20 +106,20 @@ Generate the code now:`;
       error: `Gemini API call failed: ${errorMessage}`,
     };
 
-    console.error("[LLM-AGENT-V1] ❌ ERROR:", errorMessage);
+    logger.error("❌ ERROR:", errorMessage);
 
     // Provide detailed error context for debugging
     if (error instanceof Error && error.stack) {
-      console.error("[LLM-AGENT-V1] Stack trace:", error.stack);
+      logger.error("Stack trace:", error.stack);
     }
 
-    console.log(JSON.stringify(output));
+    process.stdout.write(JSON.stringify(output) + "\n");
     process.exit(1);
   }
 }
 
 // Execute main function
 main().catch((error) => {
-  console.error("[LLM-AGENT-V1] 💥 Unhandled error in main:", error);
+  logger.error("💥 Unhandled error in main:", error);
   process.exit(1);
 });

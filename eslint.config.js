@@ -22,7 +22,10 @@ export default [
       "@typescript-eslint": tseslint,
     },
     rules: {
-      "no-console": "warn",
+      // Enforce no-console in production source files. Use the per-package
+      // logger modules for diagnostics; we allow console.* only inside
+      // dedicated logger files via the override below.
+      "no-console": "error",
       "no-unused-vars": "off", // Turn off base rule
       "@typescript-eslint/no-unused-vars": [
         "warn",
@@ -38,7 +41,7 @@ export default [
     },
   },
   {
-    files: ["**/*.test.ts", "**/*.spec.ts"],
+    files: ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],
     languageOptions: {
       globals: {
         ...globals.node,
@@ -50,9 +53,19 @@ export default [
     },
   },
   {
+    files: ["packages/**/src/**/logger.{ts,tsx,cts,cjs}"],
+    rules: {
+      // Allow console usage only in dedicated logger modules. All other source files
+      // should use the repository logging abstraction (logger.*) to centralize
+      // diagnostics and avoid ad-hoc console calls.
+      "no-console": "off",
+    },
+  },
+  {
     ignores: [
       "**/dist/**",
       "**/dist-electron/**",
+      "**/.history/**",
       "**/*.d.ts",
       "**/*.js",
       "**/*.cjs",

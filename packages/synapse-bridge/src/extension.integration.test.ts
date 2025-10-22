@@ -1,11 +1,23 @@
 // packages/synapse-bridge/src/extension.integration.test.ts
 import * as vscode from "vscode";
+import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 
 // Mock vscode module (loaded from __mocks__/vscode.js)
 jest.mock("vscode");
 
 // Mock axios for HTTP communication with Nexus Server
-const mockAxiosPost = jest.fn().mockImplementation((url: string, data: any) =>
+jest.mock("axios", () => {
+  const post = jest.fn();
+  return {
+    __esModule: true,
+    default: { post },
+  };
+});
+
+// Use the mocked axios instance and expose the post mock for convenience
+import axios from "axios";
+const mockAxiosPost = (axios as any).post as any;
+mockAxiosPost.mockImplementation((url: string, data: any) =>
   Promise.resolve({
     data: {
       receiptId: "test-receipt-123",
@@ -25,15 +37,6 @@ const mockAxiosPost = jest.fn().mockImplementation((url: string, data: any) =>
   })
 );
 
-jest.mock("axios", () => {
-  return {
-    __esModule: true,
-    default: {
-      post: mockAxiosPost,
-    },
-  };
-});
-
 // NOW import the extension after mocks are set up
 import { activate } from "./extension";
 
@@ -46,8 +49,17 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
     jest.clearAllMocks();
     mockAxiosPost.mockClear();
 
-    (vscode.window.showErrorMessage as jest.Mock).mockClear();
-    (vscode.window.showInformationMessage as jest.Mock).mockClear();
+    (vscode.window.showErrorMessage as any).mockClear();
+    (vscode.window.showInformationMessage as any).mockClear();
+
+    // Ensure workspace is present for tests that require it
+    (vscode.workspace as any).workspaceFolders = [
+      {
+        uri: { fsPath: "/test/workspace" },
+        name: "test-workspace",
+        index: 0,
+      },
+    ];
 
     // Create mock context
     mockContext = {
@@ -104,7 +116,7 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
       activate(mockContext);
 
       // Extract the command handler function
-      const registerCommandMock = vscode.commands.registerCommand as jest.Mock;
+      const registerCommandMock = vscode.commands.registerCommand as any;
       commandHandler =
         registerCommandMock.mock.calls[
           registerCommandMock.mock.calls.length - 1
@@ -118,9 +130,7 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
       );
 
       (vscode.window as any).activeTextEditor = mockEditor;
-      (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
-        "test this code"
-      );
+      (vscode.window.showInputBox as any).mockResolvedValue("test this code");
 
       await commandHandler();
 
@@ -138,9 +148,7 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
 
     it("should make HTTP POST request to task endpoint", async () => {
       (vscode.window as any).activeTextEditor = mockEditor;
-      (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
-        "test this code"
-      );
+      (vscode.window.showInputBox as any).mockResolvedValue("test this code");
 
       // Execute command
       await commandHandler();
@@ -186,7 +194,7 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
 
     it("should exit gracefully if user cancels input", async () => {
       (vscode.window as any).activeTextEditor = mockEditor;
-      (vscode.window.showInputBox as jest.Mock).mockResolvedValue(undefined);
+      (vscode.window.showInputBox as any).mockResolvedValue(undefined);
 
       await commandHandler();
 
@@ -196,7 +204,7 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
 
     it("should send properly structured TaskVector to server", async () => {
       (vscode.window as any).activeTextEditor = mockEditor;
-      (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
+      (vscode.window.showInputBox as any).mockResolvedValue(
         "test this function"
       );
 
@@ -238,7 +246,7 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
 
     it("should display success message after task completion", async () => {
       (vscode.window as any).activeTextEditor = mockEditor;
-      (vscode.window.showInputBox as jest.Mock).mockResolvedValue(
+      (vscode.window.showInputBox as any).mockResolvedValue(
         "refactor this code"
       );
 
@@ -258,7 +266,7 @@ describe("Extension Integration Tests - Isolation Protocol", () => {
       );
 
       (vscode.window as any).activeTextEditor = mockEditor;
-      (vscode.window.showInputBox as jest.Mock).mockResolvedValue("test this");
+      (vscode.window.showInputBox as any).mockResolvedValue("test this");
 
       await commandHandler();
 

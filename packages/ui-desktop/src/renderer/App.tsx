@@ -12,6 +12,7 @@ import { DetailView } from "./components/DetailView";
 import { TaskInput } from "./components/TaskInput";
 import type { NexusState, SystemEvent } from "../preload.cjs";
 import "./App.css";
+import { logger } from "../logger";
 
 export const App: React.FC = () => {
   const [nexusState, setNexusState] = useState<NexusState | null>(null);
@@ -24,9 +25,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     const initializeState = async () => {
       try {
-        console.log(
-          "[COMMAND DECK] Requesting initial state from Nexus Core..."
-        );
+        logger.info("Requesting initial state from Nexus Core...");
 
         // Check if nexusApi is available
         if (!window.nexusApi) {
@@ -36,14 +35,11 @@ export const App: React.FC = () => {
         const initialState = await window.nexusApi.getInitialState();
         setNexusState(initialState);
         setIsConnected(true);
-        console.log("[COMMAND DECK] Initial state received:", initialState);
+        logger.info("Initial state received:", initialState);
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
-        console.error(
-          "[COMMAND DECK] Failed to get initial state:",
-          errorMessage
-        );
+        logger.error("Failed to get initial state:", errorMessage);
         setError(errorMessage);
         setIsConnected(false);
       }
@@ -55,16 +51,28 @@ export const App: React.FC = () => {
   // Listen for real-time state updates
   useEffect(() => {
     const handleStateUpdate = (updatedState: NexusState) => {
-      console.log("[COMMAND DECK] State update received:", updatedState);
+      logger.info("State update received:", updatedState);
       setNexusState(updatedState);
     };
 
-    window.nexusApi.onStateUpdate(handleStateUpdate);
+    // Only attempt to register if the preload API is available and implements
+    // the subscription API. This makes the renderer safe to mount in test
+    // environments or when the preload bridge isn't present.
+    if (
+      window?.nexusApi &&
+      typeof window.nexusApi.onStateUpdate === "function"
+    ) {
+      window.nexusApi.onStateUpdate(handleStateUpdate);
 
-    // Cleanup listener on unmount
-    return () => {
-      window.nexusApi.removeStateUpdateListener();
-    };
+      // Cleanup listener on unmount
+      return () => {
+        if (typeof window.nexusApi.removeStateUpdateListener === "function") {
+          window.nexusApi.removeStateUpdateListener();
+        }
+      };
+    }
+
+    logger.warn("nexusApi not available; skipping state update subscription");
   }, []);
 
   // Handle task submission
@@ -72,9 +80,9 @@ export const App: React.FC = () => {
     setIsProcessingTask(true);
     try {
       await window.nexusApi.submitTask(task);
-      console.log("[COMMAND DECK] Task submitted successfully");
+      logger.info("Task submitted successfully");
     } catch (error) {
-      console.error("[COMMAND DECK] Failed to submit task:", error);
+      logger.error("Failed to submit task:", error);
     } finally {
       setIsProcessingTask(false);
     }
@@ -83,30 +91,13 @@ export const App: React.FC = () => {
   // Error state
   if (error) {
     return (
-      <div className="app-loading" style={{ background: "#1a0a0a" }}>
-        <div
-          style={{
-            padding: "2rem",
-            background: "#ff000020",
-            border: "2px solid #ff0000",
-            borderRadius: "8px",
-            maxWidth: "600px",
-          }}
-        >
-          <h2 style={{ color: "#ff4444", marginBottom: "1rem" }}>
-            ⚠️ Error Loading Command Deck
-          </h2>
-          <p style={{ color: "#ffaaaa", marginBottom: "1rem" }}>{error}</p>
+      <div className="app-loading app-loading--error">
+        <div className="error-panel">
+          <h2 className="error-title">⚠️ Error Loading Command Deck</h2>
+          <p className="error-text">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            style={{
-              padding: "0.5rem 1rem",
-              background: "#ff4444",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
+            className="error-button"
           >
             Reload
           </button>

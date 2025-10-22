@@ -76,11 +76,9 @@ export const StateMonitor: React.FC<StateMonitorProps> = ({
                   </div>
                   <div className="credibility-bar">
                     <div
-                      className="credibility-fill"
-                      style={{
-                        width: `${percentage}%`,
-                        background: getCredibilityColor(safeCredibility),
-                      }}
+                      className={`credibility-fill ${getCredibilityClass(
+                        safeCredibility
+                      )} ${getWidthClass(percentage)}`}
                     />
                   </div>
                 </div>
@@ -96,9 +94,16 @@ export const StateMonitor: React.FC<StateMonitorProps> = ({
 /**
  * Get color based on credibility score
  */
-function getCredibilityColor(credibility: number): string {
-  if (credibility >= 0.8) return "#10b981"; // Green
-  if (credibility >= 0.6) return "#60a5fa"; // Blue
-  if (credibility >= 0.4) return "#f59e0b"; // Orange
-  return "#ef4444"; // Red
+function getCredibilityClass(credibility: number): string {
+  if (credibility >= 0.8) return "credibility-green";
+  if (credibility >= 0.6) return "credibility-blue";
+  if (credibility >= 0.4) return "credibility-orange";
+  return "credibility-red";
+}
+
+function getWidthClass(percentage: number): string {
+  const clamped = Math.max(0, Math.min(100, Math.round(percentage)));
+  // Round to nearest 5% to limit class set
+  const rounded = Math.round(clamped / 5) * 5;
+  return `w-${rounded}`;
 }

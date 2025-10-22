@@ -14,6 +14,7 @@
  */
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { logger } from "../../logger";
 
 interface AgentResponse {
   code: string;
@@ -24,12 +25,12 @@ async function main(): Promise<void> {
     // Step 1: Validate API key
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey || apiKey.trim() === "") {
-      console.error(
+      process.stdout.write(
         JSON.stringify({
           error:
             "FATAL: GEMINI_API_KEY environment variable is not set or empty.",
           code: "",
-        })
+        }) + "\n"
       );
       process.exit(1);
     }
@@ -39,12 +40,12 @@ async function main(): Promise<void> {
       process.env.TASK_DESCRIPTION || process.argv[2] || "";
 
     if (!taskDescription || taskDescription.trim() === "") {
-      console.error(
+      process.stdout.write(
         JSON.stringify({
           error:
             "FATAL: No task description provided. Pass as command-line argument or TASK_DESCRIPTION env var.",
           code: "",
-        })
+        }) + "\n"
       );
       process.exit(1);
     }
@@ -61,7 +62,7 @@ ${taskDescription}
 Return ONLY the code itself, without any markdown formatting, explanations, or surrounding text. The code should be production-ready and follow best practices.`;
 
     // Step 5: Call Gemini API
-    console.error(`[GEMINI-AGENT] Sending request to Gemini API...`);
+    logger.info(`Sending request to Gemini API...`);
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const generatedCode = response.text();
@@ -80,21 +81,21 @@ Return ONLY the code itself, without any markdown formatting, explanations, or s
     const output: AgentResponse = {
       code: cleanedCode,
     };
-
-    console.log(JSON.stringify(output));
-    console.error(`[GEMINI-AGENT] Code generation completed successfully.`);
+    // Emit result as raw JSON for consumers
+    process.stdout.write(JSON.stringify(output) + "\n");
+    logger.info(`Code generation completed successfully.`);
   } catch (error) {
     // Step 8: Handle errors gracefully
     const errorMessage = error instanceof Error ? error.message : String(error);
 
-    console.error(`[GEMINI-AGENT] ERROR: ${errorMessage}`);
+    logger.error(`ERROR: ${errorMessage}`);
 
     // Still output valid JSON on error
-    console.log(
+    process.stdout.write(
       JSON.stringify({
         error: `Failed to generate code: ${errorMessage}`,
         code: "",
-      })
+      }) + "\n"
     );
 
     process.exit(1);
@@ -103,6 +104,6 @@ Return ONLY the code itself, without any markdown formatting, explanations, or s
 
 // Execute the agent
 main().catch((error) => {
-  console.error(`[GEMINI-AGENT] Unhandled error: ${error}`);
+  logger.error(`Unhandled error: ${error}`);
   process.exit(1);
 });

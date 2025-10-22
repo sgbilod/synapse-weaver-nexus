@@ -2,6 +2,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import { OrchestrationEngine } from "./OrchestrationEngine.js";
+import { logger } from "./logger";
 
 const app = express();
 const port = 3002;
@@ -10,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 const nexusEngine = new OrchestrationEngine();
-console.log("[Nexus Server] Orchestration Engine Initialized.");
+logger.info("Orchestration Engine Initialized.");
 
 app.post("/task", async (req: Request, res: Response) => {
   try {
@@ -21,27 +22,22 @@ app.post("/task", async (req: Request, res: Response) => {
         .json({ error: "Missing taskVector or projectRootPath" });
     }
 
-    console.log(`[Nexus Server] Received task: ${taskVector.id}`);
+    logger.info(`Received task: ${taskVector.id}`);
     const receipt = await nexusEngine.receiveTask(taskVector, projectRootPath);
     res.json(receipt);
   } catch (error) {
-    console.error(
-      "[Nexus Server] A fatal error occurred during task execution:",
-      error
-    );
+    logger.error("A fatal error occurred during task execution:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
-    res
-      .status(500)
-      .json({
-        error: "Nexus Core failed to execute task.",
-        details: errorMessage,
-      });
+    res.status(500).json({
+      error: "Nexus Core failed to execute task.",
+      details: errorMessage,
+    });
   }
 });
 
 app.listen(port, () => {
-  console.log(
-    `[Nexus Server] Synapse Weaver Nexus Core is online and listening on http://localhost:${port}`
+  logger.info(
+    `Synapse Weaver Nexus Core is online and listening on http://localhost:${port}`
   );
 });

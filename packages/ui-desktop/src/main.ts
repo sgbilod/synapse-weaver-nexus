@@ -10,6 +10,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { OrchestrationEngine } from "@synapse/nexus-core";
 import type { NexusState, SystemEvent } from "./preload.cjs";
+import { logger } from "./logger";
+import type { PersonalEnclave, AgentCredibility } from "@synapse/nexus-core";
 
 // ES module compatibility
 const __filename = fileURLToPath(import.meta.url);
@@ -20,9 +22,9 @@ const __dirname = path.dirname(__filename);
 // workspace root = /workspace (go up 3 levels)
 const WORKSPACE_ROOT = path.resolve(__dirname, "../../..");
 
-console.log("[COMMAND DECK] Workspace root:", WORKSPACE_ROOT);
-console.log("[COMMAND DECK] Current directory:", process.cwd());
-console.log("[COMMAND DECK] __dirname:", __dirname);
+logger.info("Workspace root:", WORKSPACE_ROOT);
+logger.info("Current directory:", process.cwd());
+logger.info("__dirname:", __dirname);
 
 // The living instance of the Nexus Core
 let nexusEngine: OrchestrationEngine;
@@ -50,18 +52,18 @@ function createWindow() {
 
   // Log when ready to show
   mainWindow.once("ready-to-show", () => {
-    console.log("[COMMAND DECK] Window ready-to-show event fired");
+    logger.info("Window ready-to-show event fired");
     logSystemEvent("TASK_RECEIVED", "Command Deck initialized and ready");
   });
 
   // Log renderer process crashes
   mainWindow.webContents.on("render-process-gone", (_event, details) => {
-    console.error("[COMMAND DECK] Renderer process gone!", details);
+    logger.error("Renderer process gone!", details);
   });
 
   // Log when renderer becomes unresponsive
   mainWindow.on("unresponsive", () => {
-    console.error("[COMMAND DECK] Window became unresponsive!");
+    logger.error("Window became unresponsive!");
   });
 
   // Log console messages from renderer
@@ -76,35 +78,31 @@ function createWindow() {
             : level === 2
               ? "[RENDERER ERROR]"
               : "[RENDERER DEBUG]";
-      console.log(`${prefix} ${message} (${sourceId}:${line})`);
+      logger.info(`${prefix} ${message} (${sourceId}:${line})`);
     }
   );
 
   // Load the renderer
   if (process.env.VITE_DEV_SERVER_URL) {
-    console.log("[COMMAND DECK] Loading URL:", process.env.VITE_DEV_SERVER_URL);
+    logger.info("Loading URL:", process.env.VITE_DEV_SERVER_URL);
     mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
     mainWindow.webContents.openDevTools();
   } else {
     const htmlPath = path.join(__dirname, "../dist/index.html");
-    console.log("[COMMAND DECK] Loading file:", htmlPath);
+    logger.info("Loading file:", htmlPath);
     mainWindow.loadFile(htmlPath);
   }
 
   // Log when page finishes loading
   mainWindow.webContents.on("did-finish-load", () => {
-    console.log("[COMMAND DECK] Page finished loading");
+    logger.info("Page finished loading");
   });
 
   // Log navigation errors
   mainWindow.webContents.on(
     "did-fail-load",
     (_event, errorCode, errorDescription) => {
-      console.error(
-        "[COMMAND DECK] Failed to load:",
-        errorCode,
-        errorDescription
-      );
+      logger.error("Failed to load:", errorCode, errorDescription);
     }
   );
 
@@ -117,10 +115,10 @@ function createWindow() {
  * Initialize the Nexus Core - Birth the intelligence.
  */
 function initializeNexusCore() {
-  console.log("[COMMAND DECK] Initializing Nexus Core...");
+  logger.info("Initializing Nexus Core...");
   nexusEngine = new OrchestrationEngine();
   logSystemEvent("TASK_RECEIVED", "Nexus Core instantiated successfully");
-  console.log("[COMMAND DECK] Nexus Core online. Personal En-gram active.");
+  logger.info("Nexus Core online. Personal En-gram active.");
 }
 
 /**
@@ -129,7 +127,7 @@ function initializeNexusCore() {
 function logSystemEvent(
   type: SystemEvent["type"],
   message: string,
-  details?: any
+  details?: unknown
 ) {
   const event: SystemEvent = {
     timestamp: Date.now(),
@@ -167,15 +165,21 @@ function getNexusState(): NexusState {
 
   // Access the engine's internal state
   // Note: We're accessing private properties here. In production, these should be exposed via public getters.
-  const engineAny = nexusEngine as any;
-
-  const personalEnclave = engineAny.personalEnclave || {
-    indentation: "unknown",
-    quoteStyle: "unknown",
-    preferredLibraries: new Set(),
+  // Safely access enforced engine internals via a narrow unknown cast
+  const engineInternal = nexusEngine as unknown as {
+    personalEnclave?: PersonalEnclave;
+    agentCredibilityLedger?: Map<string, AgentCredibility>;
   };
 
-  const agentCredibilityLedger = engineAny.agentCredibilityLedger || new Map();
+  const personalEnclave = engineInternal.personalEnclave || {
+    indentation: "unknown",
+    quoteStyle: "unknown",
+    preferredLibraries: new Set<string>(),
+  };
+
+  const agentCredibilityLedger =
+    engineInternal.agentCredibilityLedger ||
+    new Map<string, AgentCredibility>();
 
   // Convert Map<string, AgentCredibility> to Record<string, number>
   // Extract just the score from each credibility object
@@ -209,7 +213,7 @@ function broadcastStateUpdate() {
  * IPC Handler: Get Initial State
  */
 ipcMain.handle("nexus:get-initial-state", async () => {
-  console.log("[COMMAND DECK] Initial state requested");
+  logger.info("Initial state requested");
   return getNexusState();
 });
 
@@ -217,7 +221,7 @@ ipcMain.handle("nexus:get-initial-state", async () => {
  * IPC Handler: Submit Task
  */
 ipcMain.handle("nexus:submit-task", async (_event, task: string) => {
-  console.log(`[COMMAND DECK] Task received: "${task}"`);
+  logger.info(`Task received: "${task}"`);
 
   logSystemEvent("TASK_RECEIVED", `Task submitted: ${task}`, { task });
 
@@ -248,7 +252,7 @@ ipcMain.handle("nexus:submit-task", async (_event, task: string) => {
     // Use workspace root for Docker builds
     const projectRoot = WORKSPACE_ROOT;
 
-    console.log("[COMMAND DECK] Using project root for Docker:", projectRoot);
+    logger.info("Using project root for Docker:", projectRoot);
 
     logSystemEvent("PLAN_CREATED", `Creating execution plan for task...`, {
       taskId: taskVector.id,
@@ -269,14 +273,14 @@ ipcMain.handle("nexus:submit-task", async (_event, task: string) => {
       { receiptId: receipt.receiptId, results: receipt.results }
     );
 
-    console.log("[COMMAND DECK] Task successfully processed");
+    logger.info("Task successfully processed");
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorStack = error instanceof Error ? error.stack : undefined;
 
-    console.error("[COMMAND DECK] Task processing failed:", errorMessage);
+    logger.error("Task processing failed:", errorMessage);
     if (errorStack) {
-      console.error("[COMMAND DECK] Error stack:", errorStack);
+      logger.error("Error stack:", errorStack);
     }
 
     logSystemEvent(

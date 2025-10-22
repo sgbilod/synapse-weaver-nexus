@@ -49,6 +49,7 @@ typescript-stats.json
 *.sw?
 .DS_Store
 Thumbs.db
+.history/
 
 # Electron
 *.asar

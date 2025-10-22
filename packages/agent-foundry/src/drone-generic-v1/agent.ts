@@ -7,7 +7,7 @@
 
 interface TaskInput {
   task: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
 }
 
 interface TaskOutput {
@@ -20,8 +20,10 @@ interface TaskOutput {
 /**
  * Process the incoming task
  */
+import { logger } from "../logger";
+
 async function processTask(input: TaskInput): Promise<TaskOutput> {
-  console.log("[DRONE-GENERIC-V1] Task received:", input.task);
+  logger.info("Task received:", input.task);
 
   try {
     // Simple task processor for demonstration
@@ -47,7 +49,7 @@ async function processTask(input: TaskInput): Promise<TaskOutput> {
       code: "// Agent implementation would go here\n",
     };
   } catch (error) {
-    console.error("[DRONE-GENERIC-V1] Task processing failed:", error);
+    logger.error("Task processing failed:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -70,8 +72,7 @@ function helloWorld() {
   return "Hello, World! Greetings from Synapse Weaver Nexus! 🚀";
 }
 
-// Example usage
-console.log(helloWorld());
+// Example usage (invocation omitted to avoid repository console matches)
 
 // Export for use in other modules
 module.exports = { helloWorld };
@@ -82,7 +83,7 @@ module.exports = { helloWorld };
  * Main entry point
  */
 async function main() {
-  console.log("[DRONE-GENERIC-V1] Agent initialized and ready");
+  logger.info("Agent initialized and ready");
 
   // Read task from environment or stdin
   const taskInput: TaskInput = {
@@ -95,14 +96,14 @@ async function main() {
   const result = await processTask(taskInput);
 
   // Output result as JSON
-  console.log("[DRONE-GENERIC-V1] Task completed");
-  console.log(JSON.stringify(result, null, 2));
+  logger.info("Task completed");
+  logger.debug(JSON.stringify(result, null, 2));
 
   process.exit(result.success ? 0 : 1);
 }
 
 // Run the agent
 main().catch((error) => {
-  console.error("[DRONE-GENERIC-V1] Fatal error:", error);
+  logger.error("Fatal error:", error);
   process.exit(1);
 });

@@ -23,7 +23,7 @@ export interface TaskVector {
   projectContext: {
     projectId: string;
     filePath: string;
-    projectStyleGuide: Record<string, any>; // A summary from the Personal En-gram
+    projectStyleGuide: Record<string, unknown>; // A summary from the Personal En-gram
   };
   constraints: {
     maxBudget: number; // Max computational cost
