@@ -23,10 +23,10 @@ describe("DetailView component", () => {
       details: { planId: "p1" },
     };
 
-  render(<DetailView selectedEvent={event} />);
-  expect(screen.getByText(/Plan/)).toBeInTheDocument();
-  // Non-receipt details are intentionally not rendered by DetailView; ensure details are not shown
-  expect(screen.queryByText(/planId/)).toBeNull();
+    render(<DetailView selectedEvent={event} />);
+    expect(screen.getByText(/Plan/)).toBeInTheDocument();
+    // Non-receipt details are intentionally not rendered by DetailView; ensure details are not shown
+    expect(screen.queryByText(/planId/)).toBeNull();
   });
 
   test("extracts code from RECEIPT_PROCESSED event and shows CodeDisplay", () => {
@@ -44,5 +44,34 @@ describe("DetailView component", () => {
 
     render(<DetailView selectedEvent={event} />);
     expect(screen.getByTestId("syntax")).toHaveTextContent(code);
+  });
+
+  test("renders fallback for non-JSON details in RECEIPT_PROCESSED", () => {
+    const details = {
+      results: [{ output: "not-json" }],
+    };
+    const event: SystemEvent = {
+      timestamp: Date.now(),
+      type: "RECEIPT_PROCESSED",
+      message: "Done",
+      details,
+    };
+    render(<DetailView selectedEvent={event} />);
+    // Should not throw, should render something
+    expect(screen.getByText(/Done/)).toBeInTheDocument();
+  });
+
+  test("renders error state when code extraction fails", () => {
+    const details = {
+      results: [{ output: "{" }], // invalid JSON
+    };
+    const event: SystemEvent = {
+      timestamp: Date.now(),
+      type: "RECEIPT_PROCESSED",
+      message: "Done",
+      details,
+    };
+    render(<DetailView selectedEvent={event} />);
+    expect(screen.getByText(/Done/)).toBeInTheDocument();
   });
 });

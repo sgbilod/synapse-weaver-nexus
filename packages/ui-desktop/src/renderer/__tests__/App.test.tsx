@@ -1,5 +1,13 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+// Silence logger output during tests
+jest.mock("../../logger", () => ({
+  logger: {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
+}));
 import { App } from "../App";
 
 describe("App (Command Deck) integration", () => {

@@ -22,4 +22,20 @@ describe("textUtils", () => {
     const input = "\x1b[31mA\u0000B\x1b[0m";
     expect(cleanOutput(input)).toBe("AB");
   });
+
+  test("removeControlChars handles empty string", () => {
+    expect(removeControlChars("")).toBe("");
+  });
+
+  test("removeControlChars handles only control chars", () => {
+    expect(removeControlChars("\u0000\u0007\u0008")).toBe("");
+  });
+
+  test("stripAnsiEscapeSequences handles only ANSI", () => {
+    expect(stripAnsiEscapeSequences("\x1b[31m\x1b[0m")).toBe("");
+  });
+
+  test("cleanOutput handles mixed input", () => {
+    expect(cleanOutput("\u0000\x1b[31mX\x1b[0m\u0007")).toBe("X");
+  });
 });
